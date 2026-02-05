@@ -1,0 +1,36 @@
+{% load static %}  <!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link href="{% static 'pages/style.css' %}" rel="stylesheet">
+</head>
+<body>
+    {% if is_home %}
+        <div class="content">
+            <div class="left-content">
+                <div class="mobile-menu">
+                    <input type="checkbox" id="menu-toggle">
+                    <label for="menu-toggle" class="menu-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </label>
+                    <ul class="menu-items" >
+                        <li><a class="menu-a" href="/about/"><span>About</span></a></li>
+                        <li><a class="menu-a" href="/contact/">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p>
+            <a href="/" style="text-decoration: none"><-Back to Home</a>
+        </p>
+    {% endif %}
+    <h1 style="margin-top: 20px; color: green; text-align: center ">{{ title }}</h1>
+
+    <p style="font-size: 18px;">{{ content }}</p>
+
+</body>
+</html>
