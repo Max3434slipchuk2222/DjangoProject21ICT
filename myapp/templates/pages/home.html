@@ -1,0 +1,43 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+
+{% block title %}Maryco Club{% endblock %}
+
+{% block content %}
+
+<section class="">
+    <h1 class="text-center text-blue-400 mt-16 text-2xl">Головна</h1>
+    <section class="py-16">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-3xl font-black text-center text-gray-900 mb-10">Наші популярні курси</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for course in popular_courses %}
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col">
+                    {% if course.image %}
+                    <img src="{{ course.image.url }}" alt="{{ course.title }}" class="w-full h-44 object-cover">
+                    {% else %}
+                    <div class="w-full h-44 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center text-5xl">📚</div>
+                    {% endif %}
+                    <div class="p-5 flex flex-col flex-1 gap-2">
+                        <span class="text-xs font-black text-blue-600 uppercase tracking-wider">{{ course.category.name }}</span>
+                        <h3 class="font-black text-gray-900">{{ course.title }}</h3>
+                        <p class="text-sm text-gray-500 flex-1 leading-relaxed">{{ course.description|truncatewords:15 }}</p>
+                        <div class="flex items-center justify-between pt-3 border-t border-gray-100 mt-2">
+                            <span class="font-black text-blue-600">{{ course.price }} грн / міс</span>
+                            <a href="" class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-bold text-sm px-4 py-1.5 rounded-lg transition-colors">
+                                Детальніше →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-gray-400 col-span-3">Курси незабаром з'являться</p>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-8">
+                <a href="/courses/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-black px-8 py-3 rounded-xl transition-colors">Всі курси</a>
+            </div>
+        </div>
+    </section>
+</section>
+{% endblock %}
