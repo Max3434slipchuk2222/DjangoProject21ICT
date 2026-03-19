@@ -28,8 +28,8 @@
             <div class="w-full h-44 bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center text-5xl">📚</div>
             {% endif %}
             <div class="p-5 flex flex-col flex-1 gap-2">
-                <span class="text-xs font-black text-blue-600 uppercase tracking-wider">{{ course.category.name }}</span>
-                <h3 class="font-black text-gray-900">{{ course.title }}</h3>
+                <span class="text-xs font-black text-blue-600 uppercase tracking-wider text-center">{{ course.category.name }}</span>
+                <h3 class="font-black text-gray-900 text-center">{{ course.title }}</h3>
                 <p class="text-sm text-gray-500 flex-1 leading-relaxed">{{ course.description|truncatewords:20 }}</p>
                 <div class="flex items-center justify-between pt-3 border-t border-gray-100 mt-2">
                     <span class="font-black text-blue-600">{{ course.price }} грн / міс</span>
