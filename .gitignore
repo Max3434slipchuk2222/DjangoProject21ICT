@@ -1,9 +1,0 @@
-venv/
-.idea/
-db.sqlite3
-__pycache__/
-*.pyc"myapp/" 
-"theme/" 
-"media/" 
-"DjangoProject21ICT/" 
-"manage.py" 

@@ -46,12 +46,33 @@ export default function TeachersPage() {
                             key={teacher.id}
                             className="group bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl p-8 text-center shadow-xl border border-white/50 dark:border-slate-800 transform transition-all duration-500 hover:scale-105 hover:shadow-blue-500/10"
                         >
-                            <div className="relative mb-6 mx-auto w-24 h-24">
+                            <div className="relative mb-6 mx-auto w-24 h-24 group">
                                 <div className="absolute inset-0 bg-blue-600 rounded-2xl rotate-6 group-hover:rotate-12 transition-transform duration-300"></div>
-                                <div className="absolute inset-0 bg-gray-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-700 z-10">
-                                    <span className="text-2xl font-black text-blue-600">
-                                        {getInitials(teacher.full_name)}
-                                    </span>
+
+                                <div className="absolute inset-0 bg-gray-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-700 z-10 overflow-hidden">
+
+                                    {teacher.photo ? (
+                                        <img
+                                            src={teacher.photo}
+                                            alt={teacher.full_name}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                                const parent = (e.target as HTMLImageElement).parentElement;
+                                                if (parent) {
+                                                    const fallback = parent.querySelector('.fallback-initials');
+                                                    if (fallback) fallback.classList.remove('hidden');
+                                                }
+                                            }}
+                                        />
+                                    ) : null}
+
+                                    <div className={`fallback-initials ${teacher.photo ? 'hidden' : ''}`}>
+            <span className="text-2xl font-black text-blue-600 uppercase">
+                {getInitials(teacher.full_name)}
+            </span>
+                                    </div>
                                 </div>
                             </div>
 

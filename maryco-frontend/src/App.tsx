@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import CoursesPage from "./pages/CoursePage";
 import TeachersPage from "./pages/Teacher";
 import ContactPage from "./pages/ContactPage";
+import CourseDetailPage from "./pages/DetailedCoursePage";
 
 
 
@@ -17,6 +18,7 @@ function App() {
             <Route path="/teachers" element={<TeachersPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="courses/category/:categoryId" element={<CoursesPage />} />
+            <Route path="courses/:id" element={<CourseDetailPage />} />
         </Route>
       </Routes>
   )

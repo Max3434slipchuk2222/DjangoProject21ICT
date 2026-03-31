@@ -45,7 +45,7 @@ export default function HomePage() {
                                             <img
                                                 src={course.image}
                                                 alt={course.title}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover object-top"
                                             />
                                         ) : (
                                             <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center text-5xl">

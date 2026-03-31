@@ -75,7 +75,7 @@ export default function CoursesPage() {
                                     <img
                                         src={course.image}
                                         alt={course.title}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 object-top"
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center text-6xl">

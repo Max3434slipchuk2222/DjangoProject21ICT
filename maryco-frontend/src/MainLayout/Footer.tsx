@@ -12,12 +12,12 @@ export default function Footer() {
 
                 <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                        <span className="font-black text-white tracking-wide text-xl uppercase">
+                        <span className="font-black text-white tracking-wide text-xl text-center">
                             MARYCO <span className="text-blue-500">CLUB</span>
                         </span>
                     </div>
                     <p className="text-sm leading-relaxed text-gray-500 max-w-xs">
-                        Навчаємо дітей створювати майбутнє сьогодні через програмування та цифрову творчість.
+                        Навчаємо дітей створювати майбутнє сьогодні.
                     </p>
                 </div>
 
@@ -42,7 +42,7 @@ export default function Footer() {
                         </a>
                         <p className="leading-relaxed">
                             м. Луцьк, <br />
-                            вул. Набережна, 8
+                            вул. Набережна, 10
                         </p>
                     </div>
                 </div>

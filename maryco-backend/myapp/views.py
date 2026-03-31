@@ -21,15 +21,13 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
 @extend_schema(tags=['Курси'])
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.select_related('category', 'teacher').all()
+    queryset = Course.objects.select_related('category').prefetch_related('teachers', 'groups').all()
     serializer_class = CourseSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['category', 'teacher']
-
-
+    filterset_fields = ['category', 'teachers']
     @action(detail=False, url_path='category/(?P<category_id>[^/.]+)')
     def by_category(self, request, category_id=None):
-        courses = self.queryset.filter(category_id=category_id)
+        courses = self.get_queryset().filter(category_id=category_id)
         serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)
 
