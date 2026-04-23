@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGetCourseByIdQuery } from "../../services/marycoApi";
-
+import CourseReviews from '../../components/CourseReviews';
+import EnrollModal from "../../components/EnrollModal.tsx";
 const CheckIcon = () => (
     <div className="bg-blue-100 p-1 rounded-full mr-3 text-blue-700 flex-shrink-0">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -13,7 +14,7 @@ const CheckIcon = () => (
 const CourseDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const { data: course, isLoading, error } = useGetCourseByIdQuery(Number(id));
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
     if (isLoading) return <div className="p-10 text-center dark:text-white font-bold">Завантаження...</div>;
     if (error || !course) return <div className="p-10 text-center text-red-500 font-bold">Курс не знайдено</div>;
 
@@ -37,7 +38,10 @@ const CourseDetailPage: React.FC = () => {
                         <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 max-w-lg leading-relaxed">
                             {course.description}
                         </p>
-                        <button className="px-14 py-5 bg-blue-700 hover:bg-blue-800 text-white font-extrabold rounded-2xl text-lg transition-all shadow-xl shadow-blue-700/25 active:scale-95">
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-8 rounded-2xl transition-all shadow-lg shadow-blue-500/30 text-lg hover:-translate-y-1"
+                        >
                             Записатись на курс
                         </button>
                     </div>
@@ -106,7 +110,10 @@ const CourseDetailPage: React.FC = () => {
                                 {Math.floor(Number(course.price))} <small className="text-lg font-bold">грн/міс</small>
                             </span>
                         </div>
-                        <button className="w-full py-4 border-2 border-blue-700 text-blue-700 dark:text-blue-400 font-black rounded-2xl hover:bg-blue-700 hover:text-white transition-all shadow-lg shadow-blue-700/10">
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 px-8 rounded-2xl transition-all shadow-xl shadow-gray-200 text-lg border border-gray-100 hover:-translate-y-1"
+                        >
                             Спробувати безкоштовно
                         </button>
                     </div>
@@ -142,6 +149,19 @@ const CourseDetailPage: React.FC = () => {
                         ))}
                     </div>
                 </div>
+                <div className="max-w-4xl mx-auto px-4 pb-20">
+                    <CourseReviews
+                        courseId={course.id}
+                        reviews={course.reviews}
+                        averageRating={course.average_rating}
+                    />
+                </div>
+                <EnrollModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    initialCourseId={course.id}
+                    courseTitle={course.title}
+                />
 
             </div>
         </div>

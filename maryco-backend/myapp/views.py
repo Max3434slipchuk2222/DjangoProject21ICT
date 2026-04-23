@@ -1,10 +1,13 @@
-from rest_framework import viewsets
+from django.db.models import Avg
+from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
-from .models import Teacher, Course, Category, Student
-from .serializers import TeacherSerializer, CourseSerializer, CategorySerializer, StudentSerializer
+from .models import Teacher, Course, Category, Student, News, Promotion, CourseReview, TrialLessonRequest, \
+    NewsletterSubscriber
+from .serializers import TeacherSerializer, CourseSerializer, CategorySerializer, StudentSerializer, NewsSerializer, \
+    PromotionSerializer, CourseReviewSerializer, TrialLessonSerializer, NewsletterSerializer
 
 
 @extend_schema(tags=['Категорії'])
@@ -21,7 +24,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
 @extend_schema(tags=['Курси'])
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.select_related('category').prefetch_related('teachers', 'groups').all()
+    queryset = Course.objects.annotate(average_rating=Avg('reviews__rating')).select_related('category').prefetch_related('teachers', 'groups', 'reviews').all()
     serializer_class = CourseSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['category', 'teachers']
@@ -36,3 +39,26 @@ class CourseViewSet(viewsets.ModelViewSet):
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.prefetch_related('courses').all()
     serializer_class = StudentSerializer
+@extend_schema(tags=['Новини'])
+class NewsViewSet(viewsets.ModelViewSet):
+    queryset = News.objects.filter(is_published=True)
+    serializer_class = NewsSerializer
+
+@extend_schema(tags=['Акції'])
+class PromotionViewSet(viewsets.ModelViewSet):
+    queryset = Promotion.objects.filter(is_active=True)
+    serializer_class = PromotionSerializer
+@extend_schema(tags=['Розсилка'])
+class NewsletterViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = NewsletterSubscriber.objects.all()
+    serializer_class = NewsletterSerializer
+
+@extend_schema(tags=['Заявки на урок'])
+class TrialLessonViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = TrialLessonRequest.objects.all()
+    serializer_class = TrialLessonSerializer
+
+@extend_schema(tags=['Відгуки на курси'])
+class CourseReviewViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = CourseReview.objects.filter(is_published=True)
+    serializer_class = CourseReviewSerializer

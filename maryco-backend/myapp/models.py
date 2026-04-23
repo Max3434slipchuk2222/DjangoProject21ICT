@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django_resized import ResizedImageField
 
@@ -85,3 +86,100 @@ class CourseGroup(models.Model):
 
     def __str__(self):
         return f"{self.course.title} - {self.name}"
+class News(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    image = ResizedImageField(
+        size=[800, 500],
+        quality=85,
+        force_format='WEBP',
+        upload_to='news_images/',
+        null=True,
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_published = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = "tblNews"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+
+class Promotion(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    discount = models.CharField(max_length=50)
+    image = ResizedImageField(
+        size=[800, 500],
+        quality=85,
+        force_format='WEBP',
+        upload_to='promotions_images/',
+        null=True,
+        blank=True
+    )
+    valid_until = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "tblPromotions"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+class NewsletterSubscriber(models.Model):
+    email = models.EmailField(unique=True, verbose_name="Email для розсилки")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "tblNewsletterSubscribers"
+        verbose_name = "Підписник на розсилку"
+        verbose_name_plural = "Підписники на розсилку"
+
+    def __str__(self):
+        return self.email
+
+
+class TrialLessonRequest(models.Model):
+    STATUS = [
+        ('new', 'Нова заявка'),
+        ('processed', 'Оброблено'),
+    ]
+
+    full_name = models.CharField(max_length=100, verbose_name="Ім'я")
+    phone = models.CharField(max_length=20, verbose_name="Телефон")
+    child_age = models.CharField(max_length=50, verbose_name="Вік дитини", blank=True, null=True)
+    course = models.ForeignKey('Course', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Курс")
+    status = models.CharField(max_length=20, choices=STATUS, default='new')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "tblTrialLessons"
+        ordering = ['-created_at']
+        verbose_name = "Заявка на урок"
+        verbose_name_plural = "Заявки на урок"
+
+    def __str__(self):
+        return f"{self.full_name} ({self.phone})"
+class CourseReview(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')
+    author_name = models.CharField(max_length=100, verbose_name="Ім'я автора", blank=True, null=True)
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Оцінка (1-5)"
+    )
+    comment = models.TextField(verbose_name="Відгук")
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_published = models.BooleanField(default=True, verbose_name="Опубліковано")
+
+    class Meta:
+        db_table = "tblCourseReviews"
+        ordering = ['-created_at']
+        verbose_name = "Відгук"
+        verbose_name_plural = "Відгуки"
+
+    def __str__(self):
+        return f"Відгук на {self.course.title} - {self.rating} зірок"

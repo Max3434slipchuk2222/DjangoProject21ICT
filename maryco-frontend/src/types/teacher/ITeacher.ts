@@ -1,3 +1,5 @@
+import type {ICourse} from "../course/ICourse.ts";
+
 export interface ITeacher {
     id: number;
     full_name: string;
@@ -6,4 +8,5 @@ export interface ITeacher {
     photo: string | null;
     experience: string;
     created_at: string;
+    courses?: ICourse[]
 }

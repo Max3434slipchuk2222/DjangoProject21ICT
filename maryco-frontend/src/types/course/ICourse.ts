@@ -1,5 +1,6 @@
 import type { ICategory } from '../category/ICategory';
 import type { ITeacher } from '../teacher/ITeacher';
+import type {ICourseReview} from "../review/ICourseReview.ts";
 
 export interface IProgramStep {
     title: string;
@@ -28,4 +29,6 @@ export interface ICourse {
     program_steps: IProgramStep[];
     benefits: string[];
     created_at: string;
+    average_rating?: number | null;
+    reviews?: ICourseReview[];
 }
