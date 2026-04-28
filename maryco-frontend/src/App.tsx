@@ -6,10 +6,12 @@ import CoursesPage from "./pages/CoursePage";
 import TeachersPage from "./pages/Teacher";
 import ContactPage from "./pages/ContactPage";
 import CourseDetailPage from "./pages/DetailedCoursePage";
+import useDarkMode from "./hooks/UseDarkMode.ts";
 
 
 
 function App() {
+    useDarkMode();
   return (
       <Routes>
         <Route path="/" element={<MainLayout/>}>
