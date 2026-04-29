@@ -45,8 +45,13 @@ class CourseSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     teachers = TeacherSerializer(many=True, read_only=True)
     groups = CourseGroupSerializer(many=True, read_only=True)
+    reviews = serializers.SerializerMethodField()  # Розумне поле
     average_rating = serializers.FloatField(read_only=True)
-    reviews = CourseReviewSerializer(many=True, read_only=True)
+
+    def get_reviews(self, obj):
+        published_reviews = obj.reviews.filter(is_published=True)
+        return CourseReviewSerializer(published_reviews, many=True).data
+
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         source='category',

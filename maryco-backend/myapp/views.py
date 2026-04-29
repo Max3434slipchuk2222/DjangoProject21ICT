@@ -1,4 +1,4 @@
-from django.db.models import Avg
+from django.db.models import Avg, Q
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -24,7 +24,9 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
 @extend_schema(tags=['Курси'])
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.annotate(average_rating=Avg('reviews__rating')).select_related('category').prefetch_related('teachers', 'groups', 'reviews').all()
+    queryset = Course.objects.annotate(
+        average_rating=Avg('reviews__rating', filter=Q(reviews__is_published=True))
+    )
     serializer_class = CourseSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['category', 'teachers']
