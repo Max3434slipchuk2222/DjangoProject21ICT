@@ -8,7 +8,8 @@ class TeacherAdmin(admin.ModelAdmin):
     fields = ('full_name', 'subject', 'experience', 'photo', 'bio')
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'slug')
+    prepopulated_fields = {'slug': ('name',)}
 
 class CourseGroupInline(admin.TabularInline):
     model = CourseGroup
@@ -16,11 +17,12 @@ class CourseGroupInline(admin.TabularInline):
 
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('title', 'category', 'price', 'get_teachers')
+    prepopulated_fields = {'slug': ('title',)}
     list_filter = ('category', 'teachers')
     filter = ('teachers',)
     fieldsets = (
         ('Основна інформація', {
-            'fields': ('title', 'category', 'teachers', 'price', 'image', 'description')
+            'fields': ('title', 'slug', 'category', 'teachers', 'price', 'image', 'description')
         }),
         ('Деталі', {
             'fields': ('age_range', 'duration_info', 'format_info'),
@@ -77,14 +79,14 @@ class TrialLessonAdmin(admin.ModelAdmin):
     list_filter = ('status', 'course', 'created_at')
 
 class CourseReviewAdmin(admin.ModelAdmin):
-    list_display = ('course', 'author_name', 'rating', 'is_published', 'created_at')
+    list_display = ('course', 'user', 'rating', 'created_at', 'is_published')
 
     list_editable = ('is_published',)
 
     list_filter = ('course', 'rating', 'is_published')
 
 
-    search_fields = ('comment', 'author_name')
+    search_fields = ('comment', 'user__email')
 
     readonly_fields = ('created_at',)
 

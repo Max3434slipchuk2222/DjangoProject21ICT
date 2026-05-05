@@ -14,6 +14,7 @@ from .serializers import TeacherSerializer, CourseSerializer, CategorySerializer
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    lookup_field = 'slug'
 
 
 @extend_schema(tags=['Викладачі'])
@@ -28,6 +29,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         average_rating=Avg('reviews__rating', filter=Q(reviews__is_published=True))
     )
     serializer_class = CourseSerializer
+    lookup_field = 'slug'
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['category', 'teachers']
     @action(detail=False, url_path='category/(?P<category_id>[^/.]+)')

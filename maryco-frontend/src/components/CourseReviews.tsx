@@ -66,7 +66,9 @@ export default function CourseReviews({ courseId, reviews = [], averageRating }:
                         <div key={review.id} className="bg-gray-50 dark:bg-slate-800/50 p-6 rounded-2xl transition-colors">
                             <div className="flex justify-between items-start mb-3">
                                 <div>
-                                    <h4 className="font-bold text-gray-900 dark:text-white transition-colors">{review.author_name}</h4>
+                                    <h4 className="font-bold text-gray-900 dark:text-white transition-colors">
+                                        {review.author_name || "Анонімний користувач"}
+                                    </h4>
                                     <span className="text-xs text-gray-400 dark:text-gray-500 transition-colors">
                                         {new Date(review.created_at).toLocaleDateString('uk-UA')}
                                     </span>

@@ -16,6 +16,7 @@ export interface ICourseGroup {
 
 export interface ICourse {
     id: number;
+    slug: string;
     title: string;
     description: string;
     price: string;

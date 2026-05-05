@@ -68,9 +68,9 @@ export const marycoApi = createApi({
             providesTags: ['Courses'],
         }),
 
-        getCourseById: builder.query<ICourse, number>({
-            query: (id) => ({
-                url: `/courses/${id}/`,
+        getCourseBySlug: builder.query<ICourse, string>({
+            query: (slug) => ({
+                url: `/courses/${slug}/`,
                 method: 'GET',
             }),
             providesTags: ['Courses'],
@@ -173,7 +173,7 @@ export const {
     useGetNewsQuery,
     useGetPromotionsQuery,
     useGetCoursesQuery,
-    useGetCourseByIdQuery,
+    useGetCourseBySlugQuery,
     useSubscribeNewsletterMutation,
     useSubmitTrialLessonMutation,
     useSubmitCourseReviewMutation,

@@ -109,7 +109,7 @@ export default function CoursesPage() {
                                     </div>
 
                                     <NavLink
-                                        to={`/courses/${course.id}`}
+                                        to={`/courses/${course.slug}`}
                                         className="border-2 border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-500 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white dark:hover:text-white font-bold text-sm px-4 py-2 rounded-xl transition-all duration-300 shadow-sm hover:shadow-blue-200 dark:hover:shadow-none"
                                     >
                                         Детальніше →

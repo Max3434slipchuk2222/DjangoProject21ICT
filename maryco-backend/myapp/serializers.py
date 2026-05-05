@@ -6,7 +6,7 @@ from .models import Teacher, Course, Category, Student, CourseGroup, News, Promo
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'slug']
 
 
 class TeacherCourseSerializer(serializers.ModelSerializer):
@@ -40,7 +40,7 @@ class TrialLessonSerializer(serializers.ModelSerializer):
 class CourseReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseReview
-        fields = ['id', 'course', 'author_name', 'rating', 'comment', 'created_at']
+        fields = ['id', 'course', 'user', 'rating', 'comment', 'created_at']
 class CourseSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     teachers = TeacherSerializer(many=True, read_only=True)
@@ -64,14 +64,13 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = [
-            'id', 'title', 'description', 'price', 'image',
+            'id', 'title', 'slug', 'description', 'price', 'image', # Додали slug
             'category', 'category_id',
             'teachers', 'teacher_ids', 'groups',
             'age_range', 'duration_info', 'format_info',
             'program_steps', 'benefits', 'created_at',
             'average_rating', 'reviews'
         ]
-
 
 class StudentSerializer(serializers.ModelSerializer):
     courses = CourseSerializer(many=True, read_only=True)

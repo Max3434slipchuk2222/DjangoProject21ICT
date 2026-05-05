@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useGetCourseByIdQuery } from "../../services/marycoApi";
+import { useGetCourseBySlugQuery } from "../../services/marycoApi";
 import CourseReviews from '../../components/CourseReviews';
 import EnrollModal from "../../components/EnrollModal.tsx";
 
@@ -13,8 +13,8 @@ const CheckIcon = () => (
 );
 
 const CourseDetailPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const { data: course, isLoading, error } = useGetCourseByIdQuery(Number(id));
+    const { slug } = useParams();
+    const { data: course, isLoading, error } = useGetCourseBySlugQuery(slug!);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     if (isLoading) return <div className="p-10 text-center text-gray-900 dark:text-white font-bold transition-colors">Завантаження...</div>;

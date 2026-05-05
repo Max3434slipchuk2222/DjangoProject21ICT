@@ -2,8 +2,17 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django_resized import ResizedImageField
 
+from DjangoProject21ICT import settings
+
 
 class Teacher(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='teacher_profile'
+    )
     full_name = models.CharField(max_length=100)
     subject = models.CharField(max_length=100)
     bio = models.TextField(blank=True, null=True, verbose_name="Біографія викладача")
@@ -23,6 +32,7 @@ class Teacher(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="Назва категорії")
 
+    slug = models.SlugField(max_length=100, unique=True, blank=True,)
     class Meta:
         db_table = "tblCategories"
         ordering = ['name']
@@ -35,6 +45,7 @@ class Course(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True, default='')
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='courses', null=True, blank=True)
     image = ResizedImageField(
         size=[1920, 1080],
@@ -78,7 +89,7 @@ class CourseGroup(models.Model):
     name = models.CharField(max_length=100)
     teachers = models.ManyToManyField(Teacher, related_name='groups', blank=True)
     schedule = models.CharField(max_length=200)
-
+    students = models.ManyToManyField(Student, related_name='groups', blank=True, verbose_name="Студенти в групі")
     class Meta:
         db_table = "tblCourseGroups"
         verbose_name = "Група курсу"
@@ -154,6 +165,13 @@ class TrialLessonRequest(models.Model):
     child_age = models.CharField(max_length=50, verbose_name="Вік дитини", blank=True, null=True)
     course = models.ForeignKey('Course', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Курс")
     status = models.CharField(max_length=20, choices=STATUS, default='new')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='trial_requests'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -166,7 +184,12 @@ class TrialLessonRequest(models.Model):
         return f"{self.full_name} ({self.phone})"
 class CourseReview(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')
-    author_name = models.CharField(max_length=100, verbose_name="Ім'я автора", blank=True, null=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        null=True
+    )
     rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
         verbose_name="Оцінка (1-5)"

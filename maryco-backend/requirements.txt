@@ -41,3 +41,5 @@ uritemplate==4.2.0
 urllib3==2.6.3
 
 python-dotenv
+djangorestframework-simplejwt
+django-rest-passwordreset
