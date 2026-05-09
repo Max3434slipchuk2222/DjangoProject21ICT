@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from users.serializers import UserSerializer
 from .models import Teacher, Course, Category, Student, CourseGroup, News, Promotion, NewsletterSubscriber, \
     TrialLessonRequest, CourseReview
 
@@ -38,9 +40,23 @@ class TrialLessonSerializer(serializers.ModelSerializer):
         read_only_fields = ['status']
 
 class CourseReviewSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     class Meta:
         model = CourseReview
         fields = ['id', 'course', 'user', 'rating', 'comment', 'created_at']
+        read_only_fields = ['user', 'created_at']
+
+        def validate(self, data):
+            request = self.context.get('request')
+            course = data.get('course')
+
+            if request and course:
+                if CourseReview.objects.filter(course=course, user=request.user).exists():
+                    raise serializers.ValidationError(
+                        {"detail": "Ви вже залишали відгук на цей курс."}
+                    )
+            return data
+
 class CourseSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     teachers = TeacherSerializer(many=True, read_only=True)

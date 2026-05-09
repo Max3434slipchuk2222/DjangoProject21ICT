@@ -188,7 +188,6 @@ class CourseReview(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='reviews',
-        null=True
     )
     rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],

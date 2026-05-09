@@ -1,13 +1,15 @@
-import {configureStore} from "@reduxjs/toolkit";
-import {type TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
-import {marycoApi} from "../services/marycoApi.ts";
+import { configureStore } from "@reduxjs/toolkit";
+import { type TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import { marycoApi } from "../services/marycoApi.ts";
+import authReducer from './slices/authSlice';
 
 export const store = configureStore({
     reducer: {
         [marycoApi.reducerPath]: marycoApi.reducer,
+        auth: authReducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware()
-        .concat(marycoApi.middleware)
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware().concat(marycoApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

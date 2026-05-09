@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, LogoutView, GoogleLogin
+from .views import RegisterView, LogoutView, GoogleLogin, MeView
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from django_rest_passwordreset.views import  ResetPasswordRequestToken, ResetPasswordConfirm, ResetPasswordValidateToken
 
@@ -25,7 +25,7 @@ class DecoratedGoogle(GoogleLogin): pass
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='auth_register'),
-
+    path('me/', MeView.as_view(), name='auth_me'),
     # Вхід та Токени
     path('login/', DecoratedLogin.as_view(), name='token_obtain_pair'),
     path('token/refresh/', DecoratedRefresh.as_view(), name='token_refresh'),

@@ -12,13 +12,39 @@ import type {INews} from "../types/news/INews.ts";
 import type { INewsletterCreate } from "../types/newsletter/INewsletterCreate.ts";
 import type { ITrialLessonCreate } from "../types/trial/ITrialLessonCreate.ts";
 import type { ICourseReviewCreate } from "../types/review/ICourseReviewCreate.ts";
+import type {ILoginResponse} from "../types/auth/ILoginResponse.ts";
+import type {ILoginRequest} from "../types/auth/ILoginRequest.ts";
+import type {IRegisterRequest} from "../types/auth/IRegisterRequest.ts";
+import type {IUser} from "../types/auth/IUser.ts";
+import type {ICourseReview} from "../types/review/ICourseReview.ts";
 
 export const marycoApi = createApi({
     reducerPath: 'marycoApi',
-    baseQuery: createBaseQuery(""),
-    tagTypes: ['Categories', 'Teachers', 'Courses', 'Students', 'News', 'Promotions'],
+    baseQuery: createBaseQuery(''),
+    tagTypes: ['Categories', 'Teachers', 'Courses', 'Students', 'News', 'Promotions', 'Reviews', 'Me'],
     endpoints: (builder) => ({
 
+        login: builder.mutation<ILoginResponse, ILoginRequest>({
+            query: (body) => ({
+                url: 'auth/login/',
+                method: 'POST',
+                body,
+            }),
+        }),
+        register: builder.mutation<ILoginResponse, IRegisterRequest>({
+            query: (body) => ({
+                url: 'auth/register/',
+                method: 'POST',
+                body,
+            }),
+        }),
+        getMe: builder.query<IUser, void>({
+            query: () => ({
+                url: 'auth/me/',
+                method: 'GET',
+            }),
+            providesTags: ['Me'],
+        }),
         getCategories: builder.query<ICategory[], void>({
             query: () => ({
                 url: '/categories/',
@@ -155,14 +181,21 @@ export const marycoApi = createApi({
                 body: body,
             }),
         }),
+        getReviews: builder.query<ICourseReview[], void>({
+            query: () => ({
+                url: '/reviews/',
+                method: 'GET'
+            }),
+            providesTags: ['Reviews'],
+        }),
 
-        submitCourseReview: builder.mutation<void, ICourseReviewCreate>({
+        submitCourseReview: builder.mutation<ICourseReview, ICourseReviewCreate>({
             query: (body) => ({
                 url: '/reviews/',
                 method: 'POST',
-                body: body,
+                body,
             }),
-            invalidatesTags: ['Courses'],
+            invalidatesTags: ['Courses', 'Reviews'],
         }),
     }),
 });
@@ -176,6 +209,10 @@ export const {
     useGetCourseBySlugQuery,
     useSubscribeNewsletterMutation,
     useSubmitTrialLessonMutation,
+    useGetReviewsQuery,
     useSubmitCourseReviewMutation,
+    useLoginMutation,
+    useRegisterMutation,
+    useGetMeQuery,
 
 } = marycoApi;

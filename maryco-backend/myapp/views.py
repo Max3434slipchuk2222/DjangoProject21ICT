@@ -1,5 +1,6 @@
 from django.db.models import Avg, Q
 from rest_framework import viewsets, mixins
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
@@ -62,7 +63,23 @@ class TrialLessonViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = TrialLessonRequest.objects.all()
     serializer_class = TrialLessonSerializer
 
+
 @extend_schema(tags=['Відгуки на курси'])
-class CourseReviewViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
-    queryset = CourseReview.objects.filter(is_published=True)
+class CourseReviewViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
     serializer_class = CourseReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return CourseReview.objects.filter(is_published=True).select_related('user', 'course')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        return context
