@@ -4,8 +4,10 @@ from .models import Teacher, Course, Student, Category, CourseGroup, Promotion, 
 
 
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'subject', 'created_at', 'updated_at')
-    fields = ('full_name', 'subject', 'experience', 'photo', 'bio')
+    list_display = ('full_name', 'subject', 'user', 'created_at', 'updated_at')
+    fields = ('user', 'full_name', 'subject', 'experience', 'photo', 'bio')
+    search_fields = ('full_name', 'user__email', 'user__first_name')
+    autocomplete_fields = ['user']
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useLoginMutation } from '../../services/marycoApi';
+import {useGoogleLoginMutation, useLoginMutation} from '../../services/marycoApi';
 import { useDispatch } from 'react-redux';
 import { setCredentials, setUser } from '../../store/slices/authSlice';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from "lucide-react";
+import {useGoogleLogin} from "@react-oauth/google";
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -12,12 +13,24 @@ export default function LoginPage() {
 
     const [login, { isLoading }] = useLoginMutation();
     const dispatch = useDispatch();
+    const [googleLoginApi] = useGoogleLoginMutation();
     const navigate = useNavigate();
     const location = useLocation();
 
     // Куди повертати після логіну (якщо прийшов з захищеної сторінки)
     const from = (location.state as { from?: Location })?.from?.pathname || '/';
 
+    const handleGoogleSuccess = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                const result = await googleLoginApi({ access_token: tokenResponse.access_token }).unwrap();
+                dispatch(setCredentials(result));
+                navigate('/profile');
+            } catch (err) {
+                console.error('Google Login Error:', err);
+            }
+        },
+    });
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMsg('');
@@ -88,7 +101,11 @@ export default function LoginPage() {
                             {errorMsg}
                         </div>
                     )}
-
+                    <div className="text-right mt-2">
+                        <Link to="/forgot-password" className="text-xs font-bold text-blue-600 hover:underline">
+                            Забули пароль?
+                        </Link>
+                    </div>
                     <button
                         type="submit"
                         disabled={isLoading}
@@ -96,7 +113,16 @@ export default function LoginPage() {
                     >
                         {isLoading ? 'Вхід...' : 'Увійти в кабінет'}
                     </button>
+                    <button
+                        type="button"
+                        onClick={() => handleGoogleSuccess()}
+                        className="w-full py-4 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-gray-700 dark:text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-all"
+                    >
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" className="w-5 h-5" alt="Google" />
+                        Продовжити з Google
+                    </button>
                 </form>
+
 
                 <div className="mt-8 pt-6 border-t border-gray-100 dark:border-slate-800 text-center">
                     <p className="text-gray-500 dark:text-gray-400">

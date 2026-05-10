@@ -1,5 +1,6 @@
 export interface ICourseReviewCreate {
-    course: number;
+    review_type: 'course' | 'school';
+    course?: number | null;
     rating: number;
     comment: string;
 }

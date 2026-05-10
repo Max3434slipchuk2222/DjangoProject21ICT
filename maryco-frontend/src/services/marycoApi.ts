@@ -181,10 +181,11 @@ export const marycoApi = createApi({
                 body: body,
             }),
         }),
-        getReviews: builder.query<ICourseReview[], void>({
-            query: () => ({
+        getReviews: builder.query<ICourseReview[], { teacherId?: number } | void>({
+            query: (params) => ({
                 url: '/reviews/',
-                method: 'GET'
+                method: 'GET',
+                params: params?.teacherId ? { teacher: params.teacherId } : {},
             }),
             providesTags: ['Reviews'],
         }),
@@ -196,6 +197,35 @@ export const marycoApi = createApi({
                 body,
             }),
             invalidatesTags: ['Courses', 'Reviews'],
+        }),
+        getTeacherDashboard: builder.query<any, void>({
+            query: () => ({
+                url: '/teachers/dashboard/',
+                method: 'GET',
+            }),
+            providesTags: ['Teachers'],
+        }),
+        forgotPassword: builder.mutation<void, { email: string }>({
+            query: (body) => ({
+                url: 'auth/password_reset/',
+                method: 'POST',
+                body,
+            }),
+        }),
+        resetPasswordConfirm: builder.mutation<void, { token: string; password: string }>({
+            query: (body) => ({
+                url: 'auth/password_reset/confirm/',
+                method: 'POST',
+                body,
+            }),
+        }),
+        googleLogin: builder.mutation<ILoginResponse, { access_token: string }>({
+            query: (body) => ({
+                url: 'auth/google/',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Me'],
         }),
     }),
 });
@@ -214,5 +244,9 @@ export const {
     useLoginMutation,
     useRegisterMutation,
     useGetMeQuery,
+    useGetTeacherDashboardQuery,
+    useForgotPasswordMutation,
+    useResetPasswordConfirmMutation,
+    useGoogleLoginMutation
 
 } = marycoApi;

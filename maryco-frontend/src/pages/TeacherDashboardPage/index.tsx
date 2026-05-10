@@ -1,327 +1,157 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import {
-    BookOpen, Users, ChevronDown, ChevronUp,
-    GraduationCap, Clock, Layers, Star,
-} from 'lucide-react';
-import { FaStar } from 'react-icons/fa6';
-import { useGetTeachersQuery, useGetCoursesQuery } from '../../services/marycoApi';
+import { useGetTeacherDashboardQuery, useGetReviewsQuery } from '../../services/marycoApi';
 import type { RootState } from '../../store';
-import type { ICourse } from '../../types/course/ICourse';
+// Імпортуємо створені типи
+import type { IGroup, IStudentShort, ITeacherDashboard } from '../../types/teacher/ITeacher';
+import {
+    Calendar, BookOpen,
+    ChevronDown, ChevronUp, GraduationCap, Star, LayoutDashboard
+} from 'lucide-react';
 
-// ─── Картка курсу ─────────────────────────────────────────────────────────────
-function CourseCard({ course }: { course: ICourse }) {
-    const [open, setOpen] = useState(false);
-    const reviewCount = course.reviews?.length ?? 0;
-    const avgRating = course.average_rating;
+const TeacherDashboardPage = () => {
+    const { user } = useSelector((state: RootState) => state.auth);
+
+    // Типізуємо результат запиту
+    const { data: dashboard, isLoading, error } = useGetTeacherDashboardQuery() as {
+        data: ITeacherDashboard | undefined,
+        isLoading: boolean,
+        error: any
+    };
+
+    const { data: reviews = [] } = useGetReviewsQuery(
+        dashboard?.id ? { teacherId: dashboard.id } : undefined,
+        { skip: !dashboard?.id }
+    );
+
+    const [openGroupId, setOpenGroupId] = useState<number | null>(null);
+    const [activeTab, setActiveTab] = useState<'groups' | 'reviews'>('groups');
+
+    if (isLoading) return <div className="p-20 text-center animate-pulse font-bold">Завантаження даних...</div>;
+
+    if (error || !dashboard) return (
+        <div className="max-w-4xl mx-auto mt-20 p-10 bg-red-50 dark:bg-red-900/10 rounded-3xl text-center">
+            <h2 className="text-2xl font-black text-red-600 mb-2">Профіль не знайдено</h2>
+            <p className="text-gray-500">Ваш акаунт (ID: {user?.id}) не прив'язаний до профілю вчителя в системі.</p>
+        </div>
+    );
 
     return (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
-            {/* Верхня частина */}
-            <div className="flex gap-4 p-5">
-                {/* Обкладинка */}
-                <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-slate-800">
-                    {course.image ? (
+        <div className="max-w-6xl mx-auto px-4 py-12 min-h-screen">
+            {/* Картка профілю */}
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-xl mb-12 flex flex-col md:flex-row items-center gap-8 border border-white dark:border-slate-800">
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-lg border-4 border-gray-50 dark:border-slate-800 flex-shrink-0">
+                    {dashboard.photo ? (
                         <img
-                            src={course.image.startsWith('http') ? course.image : `http://127.0.0.1:8000${course.image}`}
-                            alt={course.title}
+                            src={dashboard.photo.startsWith('http') ? dashboard.photo : `http://127.0.0.1:8000${dashboard.photo}`}
+                            alt={dashboard.full_name}
                             className="w-full h-full object-cover"
                         />
                     ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl">📚</div>
+                        <div className="w-full h-full bg-blue-100 dark:bg-slate-800 flex items-center justify-center text-5xl">👤</div>
                     )}
                 </div>
-
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <h3 className="font-black text-gray-900 dark:text-white text-base leading-tight">
-                            {course.title}
-                        </h3>
-                        {course.category && (
-                            <span className="text-xs font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-full flex-shrink-0">
-                                {course.category.name}
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-3 mt-2">
-                        {course.age_range && (
-                            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <GraduationCap size={13} /> {course.age_range}
-                            </span>
-                        )}
-                        {course.duration_info && (
-                            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <Clock size={13} /> {course.duration_info}
-                            </span>
-                        )}
-                        {course.format_info && (
-                            <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                                <Layers size={13} /> {course.format_info}
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-3 mt-2">
-                        {avgRating ? (
-                            <div className="flex items-center gap-1">
-                                <FaStar size={13} className="text-yellow-400" />
-                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">
-                                    {avgRating.toFixed(1)}
-                                </span>
-                                <span className="text-xs text-gray-400">({reviewCount} відгуків)</span>
-                            </div>
-                        ) : (
-                            <span className="text-xs text-gray-400">Немає відгуків</span>
-                        )}
-                        <span className="font-black text-blue-600 dark:text-blue-400 text-sm ml-auto">
-                            {course.price} грн/міс
-                        </span>
-                    </div>
+                <div className="text-center md:text-left flex-1">
+                    <span className="text-xs font-black text-blue-600 uppercase tracking-widest">Викладач</span>
+                    <h1 className="text-4xl font-black text-gray-900 dark:text-white mt-1 uppercase tracking-tighter">
+                        {dashboard.full_name}
+                    </h1>
+                    <p className="text-blue-600 dark:text-blue-400 font-bold text-lg">{dashboard.subject}</p>
                 </div>
             </div>
 
-            {/* Групи (розгортається) */}
-            {course.groups && course.groups.length > 0 && (
-                <>
-                    <button
-                        onClick={() => setOpen(!open)}
-                        className="w-full flex items-center justify-between px-5 py-3 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-700 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
-                    >
-                        <span className="flex items-center gap-2">
-                            <Users size={15} />
-                            {course.groups.length} {course.groups.length === 1 ? 'група' : 'групи'}
-                        </span>
-                        {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Sidebar: Графік */}
+                <div className="lg:col-span-1">
+                    <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 shadow-lg border border-white dark:border-slate-800 sticky top-24">
+                        <h2 className="text-xl font-black mb-6 flex items-center gap-2 uppercase tracking-tight dark:text-white">
+                            <Calendar size={20} className="text-blue-600" /> Мій Розклад
+                        </h2>
+                        <div className="space-y-4">
+                            {dashboard.groups.map((group: IGroup) => (
+                                <div key={group.id} className="p-4 bg-gray-50 dark:bg-slate-800/50 rounded-2xl border-l-4 border-blue-600">
+                                    <p className="text-[11px] font-black text-blue-600 uppercase mb-1">{group.schedule}</p>
+                                    <p className="font-bold text-gray-900 dark:text-white text-sm">{group.name}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
 
-                    {open && (
-                        <div className="px-5 py-4 border-t border-gray-100 dark:border-slate-700 flex flex-col gap-3">
-                            {course.groups.map((group) => (
-                                <div key={group.id} className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="font-bold text-gray-900 dark:text-white text-sm">
-                                            {group.name}
-                                        </span>
-                                        <span className="text-xs text-gray-400 dark:text-gray-500 bg-white dark:bg-slate-700 px-2 py-0.5 rounded-lg">
-                                            {group.schedule}
-                                        </span>
+                {/* Основна частина */}
+                <div className="lg:col-span-2 space-y-6">
+                    <div className="flex gap-2 mb-4 bg-gray-100 dark:bg-slate-800 p-1 rounded-2xl w-fit">
+                        <button
+                            onClick={() => setActiveTab('groups')}
+                            className={`px-6 py-2 rounded-xl font-bold text-sm flex items-center gap-2 ${activeTab === 'groups' ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500'}`}
+                        >
+                            <LayoutDashboard size={16} /> Групи
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('reviews')}
+                            className={`px-6 py-2 rounded-xl font-bold text-sm flex items-center gap-2 ${activeTab === 'reviews' ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-gray-500'}`}
+                        >
+                            <Star size={16} /> Відгуки ({reviews.length})
+                        </button>
+                    </div>
+
+                    {activeTab === 'groups' ? (
+                        dashboard.groups.map((group: IGroup) => (
+                            <div key={group.id} className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-lg border border-white dark:border-slate-800 overflow-hidden">
+                                <button
+                                    onClick={() => setOpenGroupId(openGroupId === group.id ? null : group.id)}
+                                    className="w-full p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-slate-800/50"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600">
+                                            <BookOpen size={24} />
+                                        </div>
+                                        <div className="text-left">
+                                            <h3 className="font-black text-lg dark:text-white uppercase leading-none">{group.name}</h3>
+                                            <p className="text-xs text-gray-500 font-bold mt-1">{group.course_title}</p>
+                                        </div>
                                     </div>
-                                    {group.teachers && group.teachers.length > 0 && (
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                            Вчителі: {group.teachers.map((t) => t.full_name).join(', ')}
-                                        </p>
-                                    )}
+                                    <div className="flex items-center gap-4">
+                                        <span className="text-xs font-black bg-green-100 dark:bg-green-900/30 text-green-700 px-3 py-1 rounded-lg">
+                                            {group.students_count} УЧНІВ
+                                        </span>
+                                        {openGroupId === group.id ? <ChevronUp /> : <ChevronDown />}
+                                    </div>
+                                </button>
+
+                                {openGroupId === group.id && (
+                                    <div className="p-6 pt-0 border-t border-gray-50 dark:border-slate-800 bg-gray-50/30 dark:bg-slate-900/50">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                                            {group.students.map((student: IStudentShort) => (
+                                                <div key={student.id} className="flex items-center gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-100 dark:border-slate-700">
+                                                    <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
+                                                        <GraduationCap size={16} className="text-blue-600" />
+                                                    </div>
+                                                    <span className="font-bold text-sm dark:text-gray-200">{student.full_name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="space-y-4">
+                            {reviews.map((r: any) => (
+                                <div key={r.id} className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-gray-100 dark:border-slate-800 shadow-sm">
+                                    <div className="flex justify-between mb-2">
+                                        <p className="font-black dark:text-white">{r.user.first_name} {r.user.last_name}</p>
+                                        <div className="flex text-yellow-400 gap-1"><Star size={14} fill="currentColor" /> {r.rating}</div>
+                                    </div>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">"{r.comment}"</p>
                                 </div>
                             ))}
                         </div>
                     )}
-                </>
-            )}
-
-            {/* Перейти до курсу */}
-            <div className="px-5 pb-5 pt-3">
-                <Link
-                    to={`/courses/${course.slug}`}
-                    className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                >
-                    Переглянути сторінку курсу →
-                </Link>
+                </div>
             </div>
         </div>
     );
-}
+};
 
-// ─── Головна сторінка ─────────────────────────────────────────────────────────
-export default function TeacherDashboardPage() {
-    const { user } = useSelector((state: RootState) => state.auth);
-    const [activeTab, setActiveTab] = useState<'courses' | 'reviews'>('courses');
-
-    const { data: teachers = [], isLoading: teachersLoading } = useGetTeachersQuery();
-    const { data: allCourses = [], isLoading: coursesLoading } = useGetCoursesQuery();
-
-    // Знаходимо профіль вчителя для поточного юзера
-    const myTeacherProfile = teachers.find((t) => t.user === user?.id);
-
-    // Курси де цей вчитель є викладачем
-    const myCourses = myTeacherProfile
-        ? allCourses.filter((c) => c.teachers?.some((t) => t.id === myTeacherProfile.id))
-        : [];
-
-    // Всі відгуки по моїх курсах
-    const myReviews = myCourses.flatMap((c) =>
-        (c.reviews ?? []).map((r) => ({ ...r, courseTitle: c.title, courseSlug: c.slug }))
-    ).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-
-    const avgRating = myReviews.length > 0
-        ? (myReviews.reduce((s, r) => s + r.rating, 0) / myReviews.length).toFixed(1)
-        : null;
-
-    const isLoading = teachersLoading || coursesLoading;
-
-    return (
-        <div className="max-w-6xl mx-auto px-4 py-12 min-h-screen">
-
-            {/* Заголовок */}
-            <div className="mb-10">
-                <span className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
-                    Панель вчителя
-                </span>
-                <h1 className="text-4xl font-black text-gray-900 dark:text-white mt-1">
-                    Вітаємо, {user?.first_name || user?.username}!
-                </h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-2">
-                    Тут ви керуєте своїми курсами та переглядаєте відгуки
-                </p>
-            </div>
-
-            {isLoading ? (
-                <div className="flex justify-center py-24">
-                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-600" />
-                </div>
-            ) : !myTeacherProfile ? (
-                /* Профіль вчителя не прив'язаний */
-                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-8 text-center">
-                    <div className="text-4xl mb-3">⚠️</div>
-                    <h3 className="text-lg font-black text-gray-900 dark:text-white mb-2">
-                        Профіль вчителя не знайдено
-                    </h3>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        Зверніться до адміністратора, щоб прив'язати ваш акаунт до профілю вчителя
-                    </p>
-                </div>
-            ) : (
-                <>
-                    {/* Статистика */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-                        {[
-                            {
-                                icon: BookOpen,
-                                label: 'Моїх курсів',
-                                value: myCourses.length,
-                                color: 'blue',
-                            },
-                            {
-                                icon: Star,
-                                label: 'Середня оцінка',
-                                value: avgRating ?? '—',
-                                color: 'yellow',
-                            },
-                            {
-                                icon: Users,
-                                label: 'Відгуків отримано',
-                                value: myReviews.length,
-                                color: 'indigo',
-                            },
-                        ].map(({ icon: Icon, label, value, color }) => (
-                            <div
-                                key={label}
-                                className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-100 dark:border-slate-800 shadow-sm"
-                            >
-                                <div className={`w-11 h-11 rounded-xl bg-${color}-100 dark:bg-${color}-900/30 flex items-center justify-center mb-4`}>
-                                    <Icon size={22} className={`text-${color}-600 dark:text-${color}-400`} />
-                                </div>
-                                <p className="text-gray-500 dark:text-gray-400 text-sm font-bold">{label}</p>
-                                <p className="text-3xl font-black text-gray-900 dark:text-white mt-1">{value}</p>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Вкладки */}
-                    <div className="flex gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl w-fit mb-8">
-                        {(['courses', 'reviews'] as const).map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`px-5 py-2 rounded-lg font-bold text-sm transition-all ${
-                                    activeTab === tab
-                                        ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm'
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                                }`}
-                            >
-                                {tab === 'courses' ? `Мої курси (${myCourses.length})` : `Відгуки (${myReviews.length})`}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Вміст вкладок */}
-                    {activeTab === 'courses' && (
-                        myCourses.length === 0 ? (
-                            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
-                                <BookOpen size={48} className="text-gray-300 dark:text-slate-600 mx-auto mb-4" />
-                                <p className="text-gray-500 dark:text-gray-400 font-bold">Вас ще не прикріплено до жодного курсу</p>
-                                <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Зверніться до адміністратора</p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {myCourses.map((course) => (
-                                    <CourseCard key={course.id} course={course} />
-                                ))}
-                            </div>
-                        )
-                    )}
-
-                    {activeTab === 'reviews' && (
-                        myReviews.length === 0 ? (
-                            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
-                                <Star size={48} className="text-gray-300 dark:text-slate-600 mx-auto mb-4" />
-                                <p className="text-gray-500 dark:text-gray-400 font-bold">Відгуків на ваші курси ще немає</p>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col gap-4">
-                                {myReviews.map((review) => {
-                                    const displayName = review.user.first_name
-                                        ? `${review.user.first_name} ${review.user.last_name || ''}`.trim()
-                                        : review.user.username;
-
-                                    return (
-                                        <div
-                                            key={review.id}
-                                            className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-gray-100 dark:border-slate-800 shadow-sm"
-                                        >
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 font-black flex-shrink-0">
-                                                    {displayName.charAt(0).toUpperCase()}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
-                                                        <span className="font-bold text-gray-900 dark:text-white">{displayName}</span>
-                                                        <div className="flex gap-0.5">
-                                                            {[1, 2, 3, 4, 5].map((i) => (
-                                                                <FaStar
-                                                                    key={i}
-                                                                    size={13}
-                                                                    className={i <= review.rating ? 'text-yellow-400' : 'text-gray-200 dark:text-slate-700'}
-                                                                />
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <Link
-                                                        to={`/courses/${review.courseSlug}`}
-                                                        className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full inline-block mb-2 hover:bg-blue-100 transition-colors"
-                                                    >
-                                                        {review.courseTitle}
-                                                    </Link>
-                                                    <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-                                                        {review.comment}
-                                                    </p>
-                                                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                                        {new Date(review.created_at).toLocaleDateString('uk-UA', {
-                                                            day: 'numeric', month: 'long', year: 'numeric'
-                                                        })}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )
-                    )}
-                </>
-            )}
-        </div>
-    );
-}
+export default TeacherDashboardPage;

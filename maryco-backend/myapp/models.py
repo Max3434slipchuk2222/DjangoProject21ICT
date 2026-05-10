@@ -182,12 +182,31 @@ class TrialLessonRequest(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.phone})"
+
+
 class CourseReview(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='reviews')
+    REVIEW_TYPE_CHOICES = (
+        ('course', 'Відгук на курс'),
+        ('school', 'Відгук про школу'),
+    )
+
+    review_type = models.CharField(
+        max_length=10,
+        choices=REVIEW_TYPE_CHOICES,
+        default='course',
+        verbose_name="Тип відгуку"
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        null=True,
+        blank=True
+    )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='reviews',
+        related_name='reviews'
     )
     rating = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)],
@@ -202,6 +221,15 @@ class CourseReview(models.Model):
         ordering = ['-created_at']
         verbose_name = "Відгук"
         verbose_name_plural = "Відгуки"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['course', 'user'],
+                condition=models.Q(review_type='course'),
+                name='unique_course_review_per_user'
+            )
+        ]
 
     def __str__(self):
-        return f"Відгук на {self.course.title} - {self.rating} зірок"
+        if self.review_type == 'school':
+            return f"Відгук про школу від {self.user.username} — {self.rating}★"
+        return f"Відгук на {self.course.title if self.course else '?'} від {self.user.username} — {self.rating}★"

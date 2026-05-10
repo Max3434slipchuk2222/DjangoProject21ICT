@@ -117,16 +117,15 @@ export default function Header() {
                         Контакти
                     </NavLink>
 
-                    {isAuthenticated && (
-                        <NavLink
-                            to="/reviews"
-                            className={({ isActive }) =>
-                                `py-2 font-bold text-[15px] transition-colors border-b-2 ${isActive ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white'}`
-                            }
-                        >
-                            Відгуки
-                        </NavLink>
-                    )}
+                    <NavLink
+                        to="/reviews"
+                        className={({ isActive }) =>
+                            `py-2 font-bold text-[15px] transition-colors border-b-2 ${isActive ? 'border-blue-600 text-blue-600 dark:text-blue-400' : 'border-transparent text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-white'}`
+                        }
+                    >
+                        Відгуки
+                    </NavLink>
+
                 </nav>
 
                 {/* ПРАВА ЧАСТИНА: Авторизація та Тема */}
@@ -232,11 +231,9 @@ export default function Header() {
                             Контакти
                         </NavLink>
 
-                        {isAuthenticated && (
-                            <NavLink to="/reviews" onClick={handleMobileClick} className="px-4 py-3 rounded-xl font-bold text-lg dark:text-white hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600">
-                                Відгуки
-                            </NavLink>
-                        )}
+                        <NavLink to="/reviews" onClick={handleMobileClick} className="px-4 py-3 rounded-xl font-bold text-lg dark:text-white hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600">
+                            Відгуки
+                        </NavLink>
 
                         <div className="mt-4 pt-6 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
                             {!isAuthenticated ? (

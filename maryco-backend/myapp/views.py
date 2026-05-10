@@ -1,6 +1,6 @@
 from django.db.models import Avg, Q
 from rest_framework import viewsets, mixins
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
@@ -8,7 +8,7 @@ from drf_spectacular.utils import extend_schema
 from .models import Teacher, Course, Category, Student, News, Promotion, CourseReview, TrialLessonRequest, \
     NewsletterSubscriber
 from .serializers import TeacherSerializer, CourseSerializer, CategorySerializer, StudentSerializer, NewsSerializer, \
-    PromotionSerializer, CourseReviewSerializer, TrialLessonSerializer, NewsletterSerializer
+    PromotionSerializer, CourseReviewSerializer, TrialLessonSerializer, NewsletterSerializer, TeacherDashboardSerializer
 
 
 @extend_schema(tags=['Категорії'])
@@ -22,6 +22,15 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class TeacherViewSet(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def dashboard(self, request):
+        try:
+            teacher = Teacher.objects.get(user=request.user)
+            serializer = TeacherDashboardSerializer(teacher)
+            return Response(serializer.data)
+        except Teacher.DoesNotExist:
+            return Response({"detail": "Профіль вчителя не знайдено."}, status=404)
 
 
 @extend_schema(tags=['Курси'])
@@ -75,7 +84,19 @@ class CourseReviewViewSet(
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return CourseReview.objects.filter(is_published=True).select_related('user', 'course')
+        qs = CourseReview.objects.filter(is_published=True).select_related('user', 'course')
+        review_type = self.request.query_params.get('review_type')
+        if review_type in ('course', 'school'):
+            qs = qs.filter(review_type=review_type)
+
+        teacher_user_id = self.request.query_params.get('teacher_user')
+        if teacher_user_id:
+            qs = qs.filter(
+                review_type='course',
+                course__teachers__user_id=teacher_user_id
+            ).distinct()
+
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

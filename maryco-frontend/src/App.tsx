@@ -15,6 +15,8 @@ import ForbiddenPage from "./pages/ForbiddenPage";
 import AdminPanelPage from "./pages/AdminPanelPage";
 import TeacherDashboardPage from "./pages/TeacherDashboardPage";
 import ReviewsPage from "./pages/ReviewsPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 
 
@@ -46,6 +48,8 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={['user', 'teacher','admin']} />}>
                 <Route path="/reviews" element={<ReviewsPage />} />
             </Route>
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
       </Routes>
   )

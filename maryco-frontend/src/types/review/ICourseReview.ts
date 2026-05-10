@@ -7,7 +7,8 @@ export interface ICourseReviewUser {
 
 export interface ICourseReview {
     id: number;
-    course: number;
+    review_type: 'course' | 'school';
+    course: number | null;
     user: ICourseReviewUser;
     rating: number;
     comment: string;
