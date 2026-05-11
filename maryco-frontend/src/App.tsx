@@ -37,6 +37,7 @@ function App() {
             <Route path="/403" element={<ForbiddenPage />} />
             <Route element={<ProtectedRoute />}>
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile-settings" element={<ProfileSettingsPage/>} />
             </Route>
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route element={<ProtectedRoute allowedRoles={['teacher', 'admin']} />}>
@@ -48,7 +49,8 @@ function App() {
             </Route>
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/profile-settings" element={<ProfileSettingsPage/>} />
+
+
         </Route>
       </Routes>
   )

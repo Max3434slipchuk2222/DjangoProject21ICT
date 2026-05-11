@@ -17,11 +17,16 @@ import type {ILoginRequest} from "../types/auth/ILoginRequest.ts";
 import type {IRegisterRequest} from "../types/auth/IRegisterRequest.ts";
 import type {IUser} from "../types/auth/IUser.ts";
 import type {ICourseReview} from "../types/review/ICourseReview.ts";
+import type {ITeacherUpdate} from "../types/teacher/ITeacherUpdate.ts";
+import type {ICourseUpdate} from "../types/course/ICourseUpdate.ts";
+import type {INewsCreate} from "../types/news/INewsCreate.ts";
+import type {IPromotionCreate} from "../types/promotion/IPromotionCreate.ts";
+import type {ITrialLesson} from "../types/trial/ITrialLesson.ts";
 
 export const marycoApi = createApi({
     reducerPath: 'marycoApi',
     baseQuery: createBaseQuery(''),
-    tagTypes: ['Categories', 'Teachers', 'Courses', 'Students', 'News', 'Promotions', 'Reviews', 'Me'],
+    tagTypes: ['Categories', 'Teachers', 'Courses', 'Students', 'News', 'Promotions', 'Reviews', 'Me', 'Trials'],
     endpoints: (builder) => ({
 
         login: builder.mutation<ILoginResponse, ILoginRequest>({
@@ -100,11 +105,13 @@ export const marycoApi = createApi({
             invalidatesTags: ['Teachers'],
         }),
 
+        updateTeacher: builder.mutation<ITeacher, { id: number; data: ITeacherUpdate }>({
+            query: ({ id, data }) => ({ url: `/teachers/${id}/`, method: 'PATCH', body: data }),
+            invalidatesTags: ['Teachers'],
+        }),
+
         deleteTeacher: builder.mutation<void, number>({
-            query: (id) => ({
-                url: `/teachers/${id}/`,
-                method: 'DELETE',
-            }),
+            query: (id) => ({ url: `/teachers/${id}/`, method: 'DELETE' }),
             invalidatesTags: ['Teachers'],
         }),
 
@@ -140,7 +147,10 @@ export const marycoApi = createApi({
             }),
             invalidatesTags: ['Courses'],
         }),
-
+        updateCourse: builder.mutation<ICourse, { slug: string; data: ICourseUpdate }>({
+            query: ({ slug, data }) => ({ url: `/courses/${slug}/`, method: 'PATCH', body: data }),
+            invalidatesTags: ['Courses'],
+        }),
         deleteCourse: builder.mutation<void, number>({
             query: (id) => ({
                 url: `/courses/${id}/`,
@@ -165,7 +175,10 @@ export const marycoApi = createApi({
             }),
             invalidatesTags: ['Students'],
         }),
-
+        updateStudent: builder.mutation<IStudent, { id: number; data: Partial<IStudentCreate> }>({
+            query: ({ id, data }) => ({ url: `/students/${id}/`, method: 'PATCH', body: data }),
+            invalidatesTags: ['Students'],
+        }),
         deleteStudent: builder.mutation<void, number>({
             query: (id) => ({
                 url: `/students/${id}/`,
@@ -180,6 +193,18 @@ export const marycoApi = createApi({
             }),
             providesTags: ['News'],
         }),
+        createNews: builder.mutation<INews, INewsCreate>({
+            query: (body) => ({ url: '/news/', method: 'POST', body }),
+            invalidatesTags: ['News'],
+        }),
+        updateNews: builder.mutation<INews, { id: number; data: Partial<INewsCreate> }>({
+            query: ({ id, data }) => ({ url: `/news/${id}/`, method: 'PATCH', body: data }),
+            invalidatesTags: ['News'],
+        }),
+        deleteNews: builder.mutation<void, number>({
+            query: (id) => ({ url: `/news/${id}/`, method: 'DELETE' }),
+            invalidatesTags: ['News'],
+        }),
 
         getPromotions: builder.query<IPromotion[], void>({
             query: () => ({
@@ -187,6 +212,18 @@ export const marycoApi = createApi({
                 method: 'GET',
             }),
             providesTags: ['Promotions'],
+        }),
+        createPromotion: builder.mutation<IPromotion, IPromotionCreate>({
+            query: (body) => ({ url: '/promotions/', method: 'POST', body }),
+            invalidatesTags: ['Promotions'],
+        }),
+        updatePromotion: builder.mutation<IPromotion, { id: number; data: Partial<IPromotionCreate> }>({
+            query: ({ id, data }) => ({ url: `/promotions/${id}/`, method: 'PATCH', body: data }),
+            invalidatesTags: ['Promotions'],
+        }),
+        deletePromotion: builder.mutation<void, number>({
+            query: (id) => ({ url: `/promotions/${id}/`, method: 'DELETE' }),
+            invalidatesTags: ['Promotions'],
         }),
         subscribeNewsletter: builder.mutation<void, INewsletterCreate>({
             query: (body) => ({
@@ -202,6 +239,18 @@ export const marycoApi = createApi({
                 method: 'POST',
                 body: body,
             }),
+        }),
+        getTrialLessons: builder.query<ITrialLesson[], void>({
+            query: () => ({ url: '/trial-lessons/', method: 'GET' }),
+            providesTags: ['Trials'],
+        }),
+        setTrialStatus: builder.mutation<ITrialLesson, { id: number; status: 'new' | 'processed' }>({
+            query: ({ id, status }) => ({
+                url: `/trial-lessons/${id}/set-status/`,
+                method: 'PATCH',
+                body: { status },
+            }),
+            invalidatesTags: ['Trials'],
         }),
         getReviews: builder.query<ICourseReview[], { teacherId?: number } | void>({
             query: (params) => ({
@@ -219,6 +268,14 @@ export const marycoApi = createApi({
                 body,
             }),
             invalidatesTags: ['Courses', 'Reviews'],
+        }),
+        toggleReviewPublish: builder.mutation<ICourseReview, number>({
+            query: (id) => ({ url: `/reviews/${id}/toggle-publish/`, method: 'PATCH' }),
+            invalidatesTags: ['Reviews'],
+        }),
+        deleteReview: builder.mutation<void, number>({
+            query: (id) => ({ url: `/reviews/${id}/`, method: 'DELETE' }),
+            invalidatesTags: ['Reviews'],
         }),
         getTeacherDashboard: builder.query<any, void>({
             query: () => ({
@@ -253,23 +310,45 @@ export const marycoApi = createApi({
 });
 
 export const {
-    useGetCategoriesQuery,
-    useGetTeachersQuery,
-    useGetNewsQuery,
-    useGetPromotionsQuery,
-    useGetCoursesQuery,
-    useGetCourseBySlugQuery,
-    useSubscribeNewsletterMutation,
-    useSubmitTrialLessonMutation,
-    useGetReviewsQuery,
-    useSubmitCourseReviewMutation,
     useLoginMutation,
     useRegisterMutation,
     useGetMeQuery,
-    useGetTeacherDashboardQuery,
     useForgotPasswordMutation,
     useResetPasswordConfirmMutation,
     useGoogleLoginMutation,
+    useGetCategoriesQuery,
+    useGetTeachersQuery,
+    useGetTeacherByIdQuery,
+    useCreateTeacherMutation,
+    useUpdateTeacherMutation,
+    useDeleteTeacherMutation,
+    useGetTeacherDashboardQuery,
+    useGetCoursesQuery,
+    useGetCourseBySlugQuery,
+    useGetCoursesByCategoryQuery,
+    useCreateCourseMutation,
+    useUpdateCourseMutation,
+    useDeleteCourseMutation,
+    useGetStudentsQuery,
+    useCreateStudentMutation,
+    useUpdateStudentMutation,
+    useDeleteStudentMutation,
+    useGetNewsQuery,
+    useCreateNewsMutation,
+    useUpdateNewsMutation,
+    useDeleteNewsMutation,
+    useGetPromotionsQuery,
+    useCreatePromotionMutation,
+    useUpdatePromotionMutation,
+    useDeletePromotionMutation,
+    useSubscribeNewsletterMutation,
+    useSubmitTrialLessonMutation,
+    useGetTrialLessonsQuery,
+    useSetTrialStatusMutation,
+    useGetReviewsQuery,
+    useSubmitCourseReviewMutation,
+    useToggleReviewPublishMutation,
+    useDeleteReviewMutation,
     useUpdateUserProfileMutation,
     useChangePasswordMutation
 

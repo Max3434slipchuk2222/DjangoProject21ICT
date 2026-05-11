@@ -67,23 +67,6 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-            'secret': os.getenv('GOOGLE_SECRET'),
-            'key': ''
-        },
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        },
-        'OAUTH_PKCE_ENABLED': False,
-    }
-}
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

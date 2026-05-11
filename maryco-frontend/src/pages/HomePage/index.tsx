@@ -75,7 +75,7 @@ export default function HomePage() {
     const nextTeacher = () => setTeacherIndex(i => Math.min(teachers.length - visibleTeachers, i + 1))
 
     return (
-        <main className="min-h-screen font-nunito transition-colors">
+        <main className="font-nunito transition-colors">
 
             <section className="bg-white dark:bg-gray-900 transition-colors">
                 <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

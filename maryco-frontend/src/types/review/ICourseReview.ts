@@ -12,5 +12,6 @@ export interface ICourseReview {
     user: ICourseReviewUser;
     rating: number;
     comment: string;
+    is_published: boolean;
     created_at: string;
 }

@@ -1,8 +1,9 @@
 export interface ICourseCreate {
-    title: string
-    description: string
-    price: string
-    category_id: number
-    teacher_id: number
-    image?: File | null
+    title: string;
+    slug?: string;
+    description?: string;
+    price: string;
+    category?: string | number;
+    is_active?: string | boolean;
+    image?: File | null;
 }

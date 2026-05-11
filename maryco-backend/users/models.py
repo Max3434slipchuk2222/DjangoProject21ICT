@@ -23,4 +23,6 @@ class CustomUser(AbstractUser):
         if self.role == 'admin':
             self.is_staff = True
             self.is_superuser = True
+        if not self.username or self.username == "":
+            self.username = self.email
         super().save(*args, **kwargs)

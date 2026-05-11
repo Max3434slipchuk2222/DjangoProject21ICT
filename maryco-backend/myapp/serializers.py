@@ -19,14 +19,18 @@ class TeacherCourseSerializer(serializers.ModelSerializer):
 class TeacherSerializer(serializers.ModelSerializer):
     courses = TeacherCourseSerializer(many=True, read_only=True)
     user = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Teacher
         fields = ['id', 'user', 'full_name', 'subject', 'bio', 'photo', 'experience', 'courses', 'created_at']
+
 
 class StudentShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ['id', 'full_name']
+
+
 class CourseGroupSerializer(serializers.ModelSerializer):
     teachers = TeacherSerializer(many=True, read_only=True)
     students = StudentShortSerializer(many=True, read_only=True)
@@ -51,14 +55,13 @@ class TrialLessonSerializer(serializers.ModelSerializer):
         read_only_fields = ['status']
 
 
-
 class CourseReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
         model = CourseReview
-        fields = ['id', 'review_type', 'course', 'user', 'rating', 'comment', 'created_at']
-        read_only_fields = ['user', 'created_at']
+        fields = ['id', 'review_type', 'course', 'user', 'rating', 'comment', 'is_published', 'created_at']
+        read_only_fields = ['user', 'created_at', 'is_published']
 
     def validate(self, data):
         request = self.context.get('request')
@@ -96,10 +99,15 @@ class CourseSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         source='category',
-        write_only=True
+        write_only=True,
+        required=False,
     )
     teacher_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Teacher.objects.all(), source='teachers', many=True, write_only=True
+        queryset=Teacher.objects.all(),
+        source='teachers',
+        many=True,
+        write_only=True,
+        required=False,
     )
 
     class Meta:
@@ -110,7 +118,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'teachers', 'teacher_ids', 'groups',
             'age_range', 'duration_info', 'format_info',
             'program_steps', 'benefits', 'created_at',
-            'average_rating', 'reviews'
+            'average_rating', 'reviews',
         ]
 
 
@@ -125,7 +133,10 @@ class StudentSerializer(serializers.ModelSerializer):
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
-        fields = ['id', 'title', 'content', 'image', 'created_at']
+        fields = ['id', 'title', 'content', 'image', 'is_published', 'created_at']
+        extra_kwargs = {
+            'is_published': {'required': False},
+        }
 
 
 class PromotionSerializer(serializers.ModelSerializer):
