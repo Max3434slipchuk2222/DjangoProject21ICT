@@ -36,6 +36,9 @@ const advantages = [
     },
 ]
 
+const mediaUrl = (p: string | null | undefined) =>
+    p ? (p.startsWith('http') ? p : `http://127.0.0.1:8000${p}`) : null;
+
 export default function HomePage() {
     const { data: courses = [], isLoading: coursesLoading } = useGetCoursesQuery()
     const { data: teachers = [], isLoading: teachersLoading } = useGetTeachersQuery()
@@ -67,6 +70,7 @@ export default function HomePage() {
             setCourseId(null);
         }
     };
+
     const popularCourses = courses.slice(0, 3)
     const [teacherIndex, setTeacherIndex] = useState(0)
     const visibleTeachers = 4
@@ -77,6 +81,7 @@ export default function HomePage() {
     return (
         <main className="font-nunito transition-colors">
 
+            {/* ── Hero ── */}
             <section className="bg-white dark:bg-gray-900 transition-colors">
                 <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div>
@@ -108,6 +113,7 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {/* ── Переваги ── */}
             <section className="py-20 bg-gray-50 dark:bg-gray-950 transition-colors">
                 <div className="max-w-6xl mx-auto px-4">
                     <h2 className="text-4xl font-black text-center text-gray-900 dark:text-white mb-14 uppercase tracking-tight transition-colors">
@@ -125,6 +131,7 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {/* ── Курси ── */}
             <section className="py-20 bg-white dark:bg-gray-900 transition-colors">
                 <div className="max-w-6xl mx-auto px-4">
                     <h2 className="text-4xl font-black text-center text-gray-900 dark:text-white mb-14 uppercase tracking-tight transition-colors">
@@ -139,18 +146,18 @@ export default function HomePage() {
                             {popularCourses.map(course => (
                                 <div key={course.id} className="group bg-gray-50 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-none hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col border border-transparent dark:border-gray-700">
                                     <div className="relative h-52 overflow-hidden">
-                                        {course.image
-                                            ? <img src={course.image.startsWith('http') ? course.image : `http://127.0.0.1:8000${course.image}`} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        {mediaUrl(course.image)
+                                            ? <img src={mediaUrl(course.image)!} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                             : <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center text-6xl">📚</div>
                                         }
                                     </div>
                                     <div className="p-6 flex flex-col flex-1">
                                         <h3 className="font-black text-gray-900 dark:text-white text-lg mb-1 uppercase transition-colors">{course.title}</h3>
                                         {course.age_range && (
-                                            <p className="text-sm text-gray-400 dark:text-gray-400 mb-3 transition-colors">Для дітей {course.age_range}</p>
+                                            <p className="text-sm text-gray-400 mb-3">Для дітей {course.age_range}</p>
                                         )}
-                                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700 transition-colors">
-                                            <span className="font-black text-blue-600 dark:text-blue-400 text-lg transition-colors">{course.price} грн / міс</span>
+                                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+                                            <span className="font-black text-blue-600 dark:text-blue-400 text-lg">{course.price} грн / міс</span>
                                             <NavLink
                                                 to={`/courses/${course.slug}`}
                                                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-4 py-2 rounded-lg transition-colors"
@@ -174,6 +181,7 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {/* ── Вчителі ── */}
             <section className="py-20 bg-gray-50 dark:bg-gray-950 transition-colors">
                 <div className="max-w-6xl mx-auto px-4">
                     <h2 className="text-4xl font-black text-center text-gray-900 dark:text-white mb-14 uppercase tracking-tight transition-colors">
@@ -189,22 +197,20 @@ export default function HomePage() {
                                 onClick={prevTeacher}
                                 disabled={teacherIndex === 0}
                                 className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all disabled:opacity-30 flex-shrink-0"
-                            >
-                                ←
-                            </button>
+                            >←</button>
                             <div className="flex gap-6 overflow-hidden flex-1">
                                 {teachers.slice(teacherIndex, teacherIndex + visibleTeachers).map(teacher => (
                                     <div key={teacher.id} className="flex-1 min-w-0 bg-white dark:bg-gray-900 rounded-2xl p-6 text-center shadow-sm dark:shadow-none hover:shadow-lg transition-all border border-transparent dark:border-gray-800">
                                         <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 border-4 border-blue-50 dark:border-gray-800">
-                                            {teacher.photo
-                                                ? <img src={teacher.photo.startsWith('http') ? teacher.photo : `http://127.0.0.1:8000${teacher.photo}`} alt={teacher.full_name} className="w-full h-full object-cover" />
+                                            {mediaUrl(teacher.photo)
+                                                ? <img src={mediaUrl(teacher.photo)!} alt={teacher.full_name} className="w-full h-full object-cover" />
                                                 : <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-black">
                                                     {teacher.full_name.slice(0, 1)}
                                                 </div>
                                             }
                                         </div>
-                                        <h3 className="font-black text-gray-900 dark:text-white text-sm mb-1 transition-colors">{teacher.full_name}</h3>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">{teacher.subject}</p>
+                                        <h3 className="font-black text-gray-900 dark:text-white text-sm mb-1">{teacher.full_name}</h3>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">{teacher.subject}</p>
                                     </div>
                                 ))}
                             </div>
@@ -212,9 +218,7 @@ export default function HomePage() {
                                 onClick={nextTeacher}
                                 disabled={teacherIndex >= teachers.length - visibleTeachers}
                                 className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all disabled:opacity-30 flex-shrink-0"
-                            >
-                                →
-                            </button>
+                            >→</button>
                         </div>
                     )}
                     <div className="text-center mt-12">
@@ -228,80 +232,108 @@ export default function HomePage() {
                 </div>
             </section>
 
+            {/* ── Новини ── */}
             {news.length > 0 && (
                 <section className="py-20 bg-white dark:bg-gray-900 transition-colors">
                     <div className="max-w-6xl mx-auto px-4">
                         <div className="text-center mb-14">
-                            <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight transition-colors">
+                            <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
                                 Новини школи
                             </h2>
-                            <div className="w-16 h-1.5 bg-blue-600 dark:bg-blue-500 mx-auto mt-4 rounded-full"></div>
+                            <div className="w-16 h-1.5 bg-blue-600 dark:bg-blue-500 mx-auto mt-4 rounded-full"/>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {/* Головна новина — велика картка */}
                             {news.slice(0, 1).map(item => (
-                                <div key={item.id} className="md:col-span-2 group relative rounded-3xl overflow-hidden shadow-xl cursor-pointer h-80">
-                                    {item.image
-                                        ? <img src={item.image.startsWith('http') ? item.image : `http://127.0.0.1:8000${item.image}`} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <NavLink
+                                    key={item.id}
+                                    to={`/news/${item.id}`}
+                                    className="md:col-span-2 group relative rounded-3xl overflow-hidden shadow-xl cursor-pointer h-80 block"
+                                >
+                                    {mediaUrl(item.image)
+                                        ? <img src={mediaUrl(item.image)!} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                         : <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-8xl">📰</div>
                                     }
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"/>
+                                    {/* Hover overlay */}
+                                    <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 transition-colors duration-300"/>
                                     <div className="absolute bottom-0 left-0 right-0 p-8">
-                            <span className="inline-block bg-blue-600 dark:bg-blue-500 text-white text-xs font-black px-3 py-1 rounded-full mb-3 uppercase tracking-wider">
-                                {new Date(item.created_at).toLocaleDateString('uk-UA')}
-                            </span>
-                                        <h3 className="font-black text-white text-2xl leading-tight">{item.title}</h3>
+                                        <span className="inline-block bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 uppercase tracking-wider">
+                                            {new Date(item.created_at).toLocaleDateString('uk-UA')}
+                                        </span>
+                                        <h3 className="font-black text-white text-2xl leading-tight group-hover:text-blue-200 transition-colors">
+                                            {item.title}
+                                        </h3>
                                         <p className="text-gray-300 text-sm mt-2 line-clamp-2">{item.content}</p>
+                                        <span className="inline-block mt-3 text-blue-300 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Читати далі →
+                                        </span>
                                     </div>
-                                </div>
+                                </NavLink>
                             ))}
+
+                            {/* Менші новини */}
                             <div className="flex flex-col gap-4">
                                 {news.slice(1, 3).map(item => (
-                                    <div key={item.id} className="group relative rounded-2xl overflow-hidden shadow-lg cursor-pointer flex-1 min-h-36">
-                                        {item.image
-                                            ? <img src={item.image.startsWith('http') ? item.image : `http://127.0.0.1:8000${item.image}`} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                    <NavLink
+                                        key={item.id}
+                                        to={`/news/${item.id}`}
+                                        className="group relative rounded-2xl overflow-hidden shadow-lg cursor-pointer flex-1 min-h-36 block"
+                                    >
+                                        {mediaUrl(item.image)
+                                            ? <img src={mediaUrl(item.image)!} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                             : <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-5xl min-h-36">📰</div>
                                         }
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"/>
+                                        <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 transition-colors duration-300"/>
                                         <div className="absolute bottom-0 left-0 right-0 p-5">
-                                <span className="text-gray-300 text-xs font-bold">
-                                    {new Date(item.created_at).toLocaleDateString('uk-UA')}
-                                </span>
-                                            <h3 className="font-black text-white text-sm leading-tight mt-1">{item.title}</h3>
+                                            <span className="text-gray-300 text-xs font-bold">
+                                                {new Date(item.created_at).toLocaleDateString('uk-UA')}
+                                            </span>
+                                            <h3 className="font-black text-white text-sm leading-tight mt-1 group-hover:text-blue-200 transition-colors">
+                                                {item.title}
+                                            </h3>
                                         </div>
-                                    </div>
+                                    </NavLink>
                                 ))}
                             </div>
                         </div>
+
                     </div>
                 </section>
             )}
 
+            {/* ── Акції ── */}
             {promotions.length > 0 && (
                 <section className="py-20 bg-gray-50 dark:bg-gray-950 transition-colors">
                     <div className="max-w-6xl mx-auto px-4">
                         <div className="text-center mb-14">
-                            <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight transition-colors">
+                            <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
                                 Акції та пропозиції
                             </h2>
-                            <div className="w-16 h-1.5 bg-blue-600 dark:bg-blue-500 mx-auto mt-4 rounded-full"></div>
+                            <div className="w-16 h-1.5 bg-blue-600 dark:bg-blue-500 mx-auto mt-4 rounded-full"/>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {promotions.slice(0, 3).map((promo, index) => (
-                                <div
+                                <NavLink
                                     key={promo.id}
+                                    to={`/promotions/${promo.id}`}
                                     className="group relative flex flex-col bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-lg dark:shadow-none hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-transparent dark:border-gray-800"
                                 >
-                                    <div className="absolute top-4 right-4 z-10">
-                                        <div className="bg-yellow-400 text-gray-900 font-black text-lg px-4 py-2 rounded-2xl shadow-lg rotate-3 group-hover:rotate-0 transition-transform">
-                                            -{promo.discount}
+                                    {/* Discount badge */}
+                                    {promo.discount && (
+                                        <div className="absolute top-4 right-4 z-10">
+                                            <div className="bg-yellow-400 text-gray-900 font-black text-lg px-4 py-2 rounded-2xl shadow-lg rotate-3 group-hover:rotate-0 transition-transform">
+                                                -{promo.discount}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     <div className="h-52 shrink-0 overflow-hidden">
-                                        {promo.image
-                                            ? <img src={promo.image.startsWith('http') ? promo.image : `http://127.0.0.1:8000${promo.image}`} alt={promo.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        {mediaUrl(promo.image)
+                                            ? <img src={mediaUrl(promo.image)!} alt={promo.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                             : <div className={`w-full h-full flex items-center justify-center text-6xl ${
                                                 index === 0 ? 'bg-gradient-to-br from-blue-400 to-blue-600' :
                                                     index === 1 ? 'bg-gradient-to-br from-indigo-400 to-purple-600' :
@@ -311,29 +343,33 @@ export default function HomePage() {
                                     </div>
 
                                     <div className="p-6 flex flex-col flex-grow">
-                                        <h3 className="font-black text-gray-900 dark:text-white text-lg mb-2 transition-colors">{promo.title}</h3>
-                                        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-4 transition-colors">{promo.description}</p>
-
+                                        <h3 className="font-black text-gray-900 dark:text-white text-lg mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                            {promo.title}
+                                        </h3>
+                                        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-4 line-clamp-2">
+                                            {promo.description}
+                                        </p>
                                         <div className="mt-auto">
                                             {promo.valid_until && (
-                                                <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 mb-4 transition-colors">
+                                                <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 mb-4">
                                                     <span>🕒</span>
                                                     <span>Діє до: <strong>{new Date(promo.valid_until).toLocaleDateString('uk-UA')}</strong></span>
                                                 </div>
                                             )}
-
-                                            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl transition-colors text-sm tracking-wide">
-                                                Дізнатись більше
-                                            </button>
+                                            <div className="w-full bg-blue-600 group-hover:bg-blue-700 text-white font-black py-3 rounded-xl transition-colors text-sm tracking-wide text-center">
+                                                Дізнатись більше →
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </NavLink>
                             ))}
                         </div>
+
                     </div>
                 </section>
             )}
 
+            {/* ── Форма запису ── */}
             <section className="py-24 bg-gray-900 dark:bg-gray-950 transition-colors" id="signup">
                 <div className="max-w-2xl mx-auto px-4">
                     <div className="text-center mb-12">
@@ -349,32 +385,34 @@ export default function HomePage() {
                         {isSuccess ? (
                             <div className="py-12 text-center">
                                 <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-500 dark:text-green-400 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">✓</div>
-                                <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-2 transition-colors">Заявку прийнято!</h3>
-                                <p className="text-gray-500 dark:text-gray-400 font-bold transition-colors">Менеджер незабаром зателефонує вам</p>
+                                <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-2">Заявку прийнято!</h3>
+                                <p className="text-gray-500 dark:text-gray-400 font-bold">Менеджер незабаром зателефонує вам</p>
                             </div>
                         ) : (
                             <form onSubmit={handleStaticSubmit} className="space-y-5">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <input
                                         type="text" required value={fullName} onChange={e => setFullName(e.target.value)}
-                                        placeholder="Ваше ім'я" className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-2xl outline-none focus:border-blue-500 dark:focus:border-blue-500 font-bold transition-all"
+                                        placeholder="Ваше ім'я"
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-2xl outline-none focus:border-blue-500 font-bold transition-all"
                                     />
                                     <PatternFormat
                                         format="+380 (##) ###-##-##" allowEmptyFormatting mask="_" required
                                         value={phone} onValueChange={v => setPhone(v.formattedValue)}
-                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-2xl outline-none focus:border-blue-500 dark:focus:border-blue-500 font-bold transition-all"
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-2xl outline-none focus:border-blue-500 font-bold transition-all"
                                     />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                     <input
                                         type="text" value={age} onChange={e => setAge(e.target.value)}
-                                        placeholder="Вік дитини" className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-2xl outline-none focus:border-blue-500 dark:focus:border-blue-500 font-bold transition-all"
+                                        placeholder="Вік дитини"
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-2xl outline-none focus:border-blue-500 font-bold transition-all"
                                     />
                                     <select
                                         value={courseId || ''} onChange={e => setCourseId(e.target.value ? Number(e.target.value) : null)}
-                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl outline-none focus:border-blue-500 dark:focus:border-blue-500 font-bold transition-all appearance-none cursor-pointer"
+                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl outline-none focus:border-blue-500 font-bold transition-all appearance-none cursor-pointer"
                                     >
-                                        <option value="" className="text-gray-400">Оберіть курс</option>
+                                        <option value="">Оберіть курс</option>
                                         {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
                                     </select>
                                 </div>
@@ -396,7 +434,6 @@ export default function HomePage() {
                 initialCourseId={selectedCourseForModal}
                 courseTitle={courses.find(c => c.id === selectedCourseForModal)?.title}
             />
-
         </main>
     )
 }

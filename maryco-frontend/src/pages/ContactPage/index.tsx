@@ -1,8 +1,10 @@
 // maryco-frontend/src/pages/ContactPage/index.tsx
 import { useState } from 'react';
 import { PatternFormat } from 'react-number-format';
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle2 } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { FaFacebookF, FaInstagram, FaTiktok } from 'react-icons/fa6';
+
+const API = import.meta.env.VITE_API_BASE_URL;
 
 const contacts = [
     {
@@ -65,6 +67,7 @@ export default function ContactPage() {
     });
     const [sent, setSent] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -73,10 +76,32 @@ export default function ContactPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        // Імітація відправки (замінити на реальний API якщо потрібно)
-        await new Promise((r) => setTimeout(r, 1200));
-        setLoading(false);
-        setSent(true);
+        setError('');
+
+        try {
+            const res = await fetch(`${API}/api/contact/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: formData.name,
+                    phone: formData.phone,
+                    email: formData.email,
+                    message: formData.message,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setSent(true);
+            } else {
+                setError(data.detail || 'Сталася помилка. Спробуйте ще раз.');
+            }
+        } catch {
+            setError('Немає з\'єднання з сервером. Перевірте інтернет.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -95,10 +120,8 @@ export default function ContactPage() {
 
             <div className="max-w-6xl mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12">
 
-                {/* Ліва колонка: контактна інформація */}
+                {/* Ліва колонка */}
                 <div className="flex flex-col gap-6">
-
-                    {/* Контактні картки */}
                     {contacts.map(({ icon: Icon, label, value, link, linkText }) => (
                         <div
                             key={label}
@@ -149,7 +172,7 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    {/* Google Maps embed */}
+                    {/* Google Maps */}
                     <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-slate-800 h-64">
                         <iframe
                             title="Maryco Club на карті"
@@ -176,7 +199,10 @@ export default function ContactPage() {
                                 Дякуємо за звернення. Ми зв'яжемося з вами найближчим часом.
                             </p>
                             <button
-                                onClick={() => { setSent(false); setFormData({ name: '', phone: '', email: '', message: '' }); }}
+                                onClick={() => {
+                                    setSent(false);
+                                    setFormData({ name: '', phone: '', email: '', message: '' });
+                                }}
                                 className="mt-4 px-8 py-3 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
                             >
                                 Надіслати ще раз
@@ -252,6 +278,13 @@ export default function ContactPage() {
                                     />
                                 </div>
 
+                                {/* Error message */}
+                                {error && (
+                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30 rounded-xl px-4 py-3 text-sm text-red-600 dark:text-red-400 font-medium">
+                                        {error}
+                                    </div>
+                                )}
+
                                 <button
                                     type="submit"
                                     disabled={loading}
@@ -259,7 +292,7 @@ export default function ContactPage() {
                                 >
                                     {loading ? (
                                         <>
-                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            <Loader2 size={18} className="animate-spin" />
                                             Відправляємо...
                                         </>
                                     ) : (

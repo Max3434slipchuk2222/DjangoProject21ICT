@@ -18,6 +18,8 @@ import ReviewsPage from "./pages/ReviewsPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfileSettingsPage from "./pages/ProfileSettingsPage";
+import PromotionDetailPage from "./pages/PromotionDetailedPage";
+import NewsDetailPage from "./pages/NewsDetailedPage";
 
 
 
@@ -49,8 +51,8 @@ function App() {
             </Route>
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-
-
+            <Route path="/news/:id" element={<NewsDetailPage />} />
+            <Route path="/promotions/:id" element={<PromotionDetailPage />} />
         </Route>
       </Routes>
   )

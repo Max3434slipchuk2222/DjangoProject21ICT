@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from django.db.models import Avg, Q
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
@@ -5,6 +6,9 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
+from rest_framework.views import APIView
+
+from DjangoProject21ICT import settings
 from .models import Teacher, Course, Category, Student, News, Promotion, CourseReview, TrialLessonRequest, \
     NewsletterSubscriber
 from .serializers import (
@@ -186,3 +190,56 @@ class CourseReviewViewSet(
         review.is_published = not review.is_published
         review.save(update_fields=['is_published'])
         return Response(CourseReviewSerializer(review, context={'request': request}).data)
+
+
+@extend_schema(tags=['Контакти'])
+class ContactView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        name = request.data.get('name', '').strip()
+        email = request.data.get('email', '').strip()
+        phone = request.data.get('phone', '').strip()
+        message = request.data.get('message', '').strip()
+
+        if not name:
+            return Response(
+                {'detail': "Ім'я обов'язкове."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not email and not phone:
+            return Response(
+                {'detail': "Вкажіть email або телефон для зворотного зв'язку."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        subject = f"📩 Новий запит з сайту — {name}"
+        body = (
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"  НОВИЙ ЗАПИТ З САЙТУ MARYCO\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"  Ім'я:     {name}\n"
+            f"  Email:    {email or '—'}\n"
+            f"  Телефон:  {phone or '—'}\n\n"
+            f"  Повідомлення:\n"
+            f"  {message or '—'}\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        )
+
+        try:
+            send_mail(
+                subject=subject,
+                message=body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.CONTACT_EMAIL],
+                fail_silently=False,
+            )
+            return Response(
+                {'detail': 'Повідомлення успішно надіслано!'},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {'detail': f'Помилка надсилання листа: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

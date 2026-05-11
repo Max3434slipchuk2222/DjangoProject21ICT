@@ -238,3 +238,4 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+CONTACT_EMAIL = 'maryco.club.private.school@gmail.com'

@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import CategoryViewSet, TeacherViewSet, CourseViewSet, StudentViewSet, NewsViewSet, PromotionViewSet, \
-    NewsletterViewSet, TrialLessonViewSet, CourseReviewViewSet
+    NewsletterViewSet, TrialLessonViewSet, CourseReviewViewSet, ContactView
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet)
@@ -13,5 +13,6 @@ router.register(r'promotions', PromotionViewSet, basename='promotion')
 router.register(r'newsletter', NewsletterViewSet, basename='newsletter')
 router.register(r'trial-lessons', TrialLessonViewSet, basename='trial-lesson')
 router.register(r'reviews', CourseReviewViewSet, basename='review')
-
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path('contact/', ContactView.as_view(), name='contact'),
+]
