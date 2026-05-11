@@ -28,5 +28,6 @@ path('', RedirectView.as_view(url='/swagger/', permanent=False), name='index'),
     path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/', include('myapp.urls')),
     path('api/auth/', include('users.urls')),
+    path('accounts/', include('allauth.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

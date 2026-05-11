@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, LogoutView, GoogleLogin, MeView
+from .views import RegisterView, LogoutView, GoogleLogin, MeView, DecoratedPasswordChange
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from django_rest_passwordreset.views import  ResetPasswordRequestToken, ResetPasswordConfirm, ResetPasswordValidateToken
 
@@ -34,4 +34,5 @@ urlpatterns = [
     path('password_reset/validate_token/', DecoratedResetValidate.as_view(), name='reset-password-validate'),
     path('logout/', LogoutView.as_view(), name='auth_logout'),
     path('google/', DecoratedGoogle.as_view(), name='google_login'),
+    path('password/change/', DecoratedPasswordChange.as_view(), name='auth_password_change'),
 ]

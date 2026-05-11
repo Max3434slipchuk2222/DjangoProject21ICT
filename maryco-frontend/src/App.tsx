@@ -17,6 +17,7 @@ import TeacherDashboardPage from "./pages/TeacherDashboardPage";
 import ReviewsPage from "./pages/ReviewsPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 
 
 
@@ -37,7 +38,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
                 <Route path="/profile" element={<ProfilePage />} />
             </Route>
-
+            <Route path="/reviews" element={<ReviewsPage />} />
             <Route element={<ProtectedRoute allowedRoles={['teacher', 'admin']} />}>
                 <Route path="/teacher-dashboard" element={<TeacherDashboardPage />} />
             </Route>
@@ -45,11 +46,9 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                 <Route path="/admin-panel" element={<AdminPanelPage />} />
             </Route>
-            <Route element={<ProtectedRoute allowedRoles={['user', 'teacher','admin']} />}>
-                <Route path="/reviews" element={<ReviewsPage />} />
-            </Route>
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/profile-settings" element={<ProfileSettingsPage/>} />
         </Route>
       </Routes>
   )

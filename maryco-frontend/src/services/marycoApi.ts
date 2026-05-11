@@ -38,12 +38,34 @@ export const marycoApi = createApi({
                 body,
             }),
         }),
+        logoutApi: builder.mutation<void, { refresh: string }>({
+            query: (body) => ({
+                url: 'auth/logout/',
+                method: 'POST',
+                body,
+            }),
+        }),
         getMe: builder.query<IUser, void>({
             query: () => ({
                 url: 'auth/me/',
                 method: 'GET',
             }),
             providesTags: ['Me'],
+        }),
+        updateUserProfile: builder.mutation<IUser, Partial<IUser>>({
+            query: (body) => ({
+                url: 'auth/me/',
+                method: 'PATCH',
+                body,
+            }),
+            invalidatesTags: ['Me'],
+        }),
+        changePassword: builder.mutation<void, any>({
+            query: (body) => ({
+                url: 'auth/password/change/',
+                method: 'POST',
+                body,
+            }),
         }),
         getCategories: builder.query<ICategory[], void>({
             query: () => ({
@@ -219,7 +241,7 @@ export const marycoApi = createApi({
                 body,
             }),
         }),
-        googleLogin: builder.mutation<ILoginResponse, { access_token: string }>({
+        googleLogin: builder.mutation<ILoginResponse, { code: string }>({
             query: (body) => ({
                 url: 'auth/google/',
                 method: 'POST',
@@ -247,6 +269,9 @@ export const {
     useGetTeacherDashboardQuery,
     useForgotPasswordMutation,
     useResetPasswordConfirmMutation,
-    useGoogleLoginMutation
+    useGoogleLoginMutation,
+    useUpdateUserProfileMutation,
+    useChangePasswordMutation
+
 
 } = marycoApi;

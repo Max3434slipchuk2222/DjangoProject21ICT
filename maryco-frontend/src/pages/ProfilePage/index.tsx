@@ -46,9 +46,12 @@ export default function ProfilePage() {
                                 </p>
                             </div>
                             <div className="flex gap-3 w-full sm:w-auto">
-                                <button className="flex-1 sm:flex-none px-6 py-3 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center">
+
+                                <Link
+                                    to="/profile-settings"
+                                    className="flex-1 sm:flex-none px-6 py-3 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200 font-bold rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 transition-all flex items-center justify-center">
                                     <Settings size={18} className="mr-2" /> Налаштування
-                                </button>
+                                </Link>
                                 <button
                                     onClick={handleLogout}
                                     className="px-4 py-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 transition-all"

@@ -1,34 +1,90 @@
 import React, { useState } from 'react';
-import {useGoogleLoginMutation, useLoginMutation} from '../../services/marycoApi';
 import { useDispatch } from 'react-redux';
 import { setCredentials, setUser } from '../../store/slices/authSlice';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from "lucide-react";
 import {useGoogleLogin} from "@react-oauth/google";
+import {useLoginMutation} from "../../services/marycoApi.ts";
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
+    const [googleLoading, setGoogleLoading] = useState(false);
+    const [googleDebug, setGoogleDebug] = useState<string>('');
 
     const [login, { isLoading }] = useLoginMutation();
     const dispatch = useDispatch();
-    const [googleLoginApi] = useGoogleLoginMutation();
     const navigate = useNavigate();
     const location = useLocation();
 
     // Куди повертати після логіну (якщо прийшов з захищеної сторінки)
     const from = (location.state as { from?: Location })?.from?.pathname || '/';
 
+    const fetchAndSetUser = async (accessToken: string) => {
+        const meRes = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/api/auth/me/`,
+            { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        if (meRes.ok) {
+            const userData = await meRes.json();
+            dispatch(setUser(userData));
+        }
+    };
+
     const handleGoogleSuccess = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
+        flow: 'auth-code',
+        onSuccess: async (codeResponse) => {
+            setGoogleLoading(true);
+            setErrorMsg('');
+            setGoogleDebug('');
             try {
-                const result = await googleLoginApi({ access_token: tokenResponse.access_token }).unwrap();
-                dispatch(setCredentials(result));
-                navigate('/profile');
-            } catch (err) {
-                console.error('Google Login Error:', err);
+                // Робимо fetch напряму щоб побачити точну відповідь сервера
+                const response = await fetch(
+                    `${import.meta.env.VITE_API_BASE_URL}/api/auth/google/`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: codeResponse.code }),
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Показуємо ПОВНУ відповідь сервера
+                    const debugText = JSON.stringify(data, null, 2);
+                    setGoogleDebug(debugText);
+                    console.error('Google login server error:', data);
+
+                    // Витягуємо людське повідомлення
+                    const msg =
+                        data?.non_field_errors?.[0] ||
+                        data?.detail ||
+                        data?.message ||
+                        data?.error ||
+                        `HTTP ${response.status}: ${debugText}`;
+                    setErrorMsg(`Google помилка: ${msg}`);
+                    return;
+                }
+
+                // Успіх
+                dispatch(setCredentials(data));
+                await fetchAndSetUser(data.access);
+                navigate(from, { replace: true });
+            } catch (err: any) {
+                const msg = err?.message || String(err);
+                setErrorMsg(`Мережева помилка: ${msg}`);
+                setGoogleDebug(String(err));
+            } finally {
+                setGoogleLoading(false);
             }
+        },
+        onError: (error) => {
+            const msg = JSON.stringify(error, null, 2);
+            setErrorMsg('Google OAuth помилка (див. нижче)');
+            setGoogleDebug(msg);
+            setGoogleLoading(false);
         },
     });
     const handleSubmit = async (e: React.FormEvent) => {
@@ -109,18 +165,38 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-lg shadow-blue-200 dark:shadow-none transition-all transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl shadow-lg shadow-blue-200 dark:shadow-none transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? 'Вхід...' : 'Увійти в кабінет'}
                     </button>
                     <button
                         type="button"
                         onClick={() => handleGoogleSuccess()}
-                        className="w-full py-4 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-gray-700 dark:text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-all"
+                        disabled={googleLoading}
+                        className="w-full py-4 mb-6 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-white font-bold rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
                     >
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" className="w-5 h-5" alt="Google" />
-                        Продовжити з Google
+                        {googleLoading ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                                Вхід через Google...
+                            </>
+                        ) : (
+                            <>
+                                <img
+                                    src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                                    className="w-5 h-5"
+                                    alt="Google"
+                                />
+                                Продовжити з Google
+                            </>
+                        )}
                     </button>
+                    {googleDebug && (
+                        <div className="mb-4 p-4 bg-gray-900 text-green-400 rounded-xl text-xs font-mono overflow-auto max-h-48 border border-gray-700">
+                            <p className="text-gray-500 mb-2 font-sans font-bold">Відповідь сервера:</p>
+                            <pre>{googleDebug}</pre>
+                        </div>
+                    )}
                 </form>
 
 
