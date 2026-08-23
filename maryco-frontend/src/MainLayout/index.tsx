@@ -10,7 +10,7 @@ export default function MainLayout() {
         <div className=" min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50
             dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 ">
             <Header />
-            <main className="flex-grow">
+            <main className="flex-grow mb-20">
                 <Outlet />
             </main>
             <Footer />

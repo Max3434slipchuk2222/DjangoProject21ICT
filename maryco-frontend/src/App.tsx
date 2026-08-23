@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./MainLayout";
 import HomePage from "./pages/HomePage";
 import CoursesPage from "./pages/CoursePage";
-import TeachersPage from "./pages/Teacher";
+import TeachersPage from "./pages/TeacherPage";
 import ContactPage from "./pages/ContactPage";
 import CourseDetailPage from "./pages/DetailedCoursePage";
 import useDarkMode from "./hooks/UseDarkMode.ts";
@@ -20,41 +20,46 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 import PromotionDetailPage from "./pages/PromotionDetailedPage";
 import NewsDetailPage from "./pages/NewsDetailedPage";
+import ScrollToTop from "./components/ScrollToTop.tsx";
 
 
 
 function App() {
     useDarkMode();
   return (
-      <Routes>
-        <Route path="/" element={<MainLayout/>}>
-            <Route index element={<HomePage/>} />
-            <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/teachers" element={<TeachersPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="courses/category/:categoryId" element={<CoursesPage />} />
-            <Route path="courses/:slug" element={<CourseDetailPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/403" element={<ForbiddenPage />} />
-            <Route element={<ProtectedRoute />}>
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/profile-settings" element={<ProfileSettingsPage/>} />
-            </Route>
-            <Route path="/reviews" element={<ReviewsPage />} />
-            <Route element={<ProtectedRoute allowedRoles={['teacher', 'admin']} />}>
-                <Route path="/teacher-dashboard" element={<TeacherDashboardPage />} />
-            </Route>
+      <>
+          <ScrollToTop />
+          <Routes>
+              <Route path="/" element={<MainLayout/>}>
+                  <Route index element={<HomePage/>} />
+                  <Route path="/courses" element={<CoursesPage />} />
+                  <Route path="/teachers" element={<TeachersPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="courses/category/:categoryId" element={<CoursesPage />} />
+                  <Route path="courses/:slug" element={<CourseDetailPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/403" element={<ForbiddenPage />} />
+                  <Route element={<ProtectedRoute />}>
+                      <Route path="/profile" element={<ProfilePage />} />
+                      <Route path="/profile-settings" element={<ProfileSettingsPage/>} />
+                  </Route>
+                  <Route path="/reviews" element={<ReviewsPage />} />
+                  <Route element={<ProtectedRoute allowedRoles={['teacher', 'admin']} />}>
+                      <Route path="/teacher-dashboard" element={<TeacherDashboardPage />} />
+                  </Route>
 
-            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-                <Route path="/admin-panel" element={<AdminPanelPage />} />
-            </Route>
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/news/:id" element={<NewsDetailPage />} />
-            <Route path="/promotions/:id" element={<PromotionDetailPage />} />
-        </Route>
-      </Routes>
+                  <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                      <Route path="/admin-panel" element={<AdminPanelPage />} />
+                  </Route>
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/news/:id" element={<NewsDetailPage />} />
+                  <Route path="/promotions/:id" element={<PromotionDetailPage />} />
+              </Route>
+          </Routes>
+      </>
+
   )
 }
 

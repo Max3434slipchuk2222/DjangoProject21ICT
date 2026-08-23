@@ -55,7 +55,7 @@ export default function PromotionDetailPage() {
     const isExpired = days === 0;
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
+        <div className="min-h-screen transition-colors">
 
             {/* ── Hero ── */}
             <div className="relative w-full overflow-hidden bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-950/40 dark:to-orange-950/30"

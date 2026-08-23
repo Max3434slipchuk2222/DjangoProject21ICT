@@ -21,7 +21,7 @@ const CourseDetailPage: React.FC = () => {
     if (error || !course) return <div className="p-10 text-center text-red-500 dark:text-red-400 font-bold transition-colors">Курс не знайдено</div>;
 
     return (
-        <div className="bg-[#F5F5F5] dark:bg-slate-950 min-h-screen text-gray-900 dark:text-white font-sans selection:bg-blue-100 dark:selection:bg-blue-900/50 transition-colors duration-300">
+        <div className=" min-h-screen text-gray-900 dark:text-white font-sans selection:bg-blue-100 dark:selection:bg-blue-900/50 transition-colors duration-300">
             <div className="container mx-auto px-4 py-8 max-w-6xl">
 
                 <nav className="text-sm text-gray-400 dark:text-gray-500 mb-10 flex gap-2 items-center transition-colors">

@@ -69,7 +69,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-[90vh] flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 py-12 transition-colors">
+        <div className="min-h-[90vh] flex items-center justify-center px-4 py-12 transition-colors">
             <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-10 shadow-2xl border border-gray-100 dark:border-slate-800 relative">
                 <Link
                     to="/"

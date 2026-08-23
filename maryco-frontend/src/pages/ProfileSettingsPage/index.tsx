@@ -126,7 +126,7 @@ export default function ProfileSettingsPage() {
     const avatarLetter = (user?.first_name || user?.username || 'U').charAt(0).toUpperCase();
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-950 py-10 px-4 transition-colors">
+        <div className="min-h-screen py-10 px-4 transition-colors">
             <div className="max-w-2xl mx-auto">
 
                 {/* Навігація назад */}

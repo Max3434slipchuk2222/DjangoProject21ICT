@@ -540,7 +540,7 @@ function StudentsSection() {
         // Payload відповідає очікуваному бекендом: courses — масив id
         const payload = {
             full_name: form.full_name.trim(),
-            courses: form.courseIds.map(Number),
+            course_ids: form.courseIds.map(Number),
         };
         try {
             if (modal === 'create') {
@@ -858,7 +858,7 @@ function CoursesSection() {
         fd.append('slug', form.slug || form.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''));
         fd.append('description', form.description);
         fd.append('price', form.price);
-        if (form.category) fd.append('category', form.category);
+        if (form.category) fd.append('category_id', form.category);
         if (form.image) fd.append('image', form.image);
         form.teacherIds.forEach(id => fd.append('teacher_ids', id));
         return fd;

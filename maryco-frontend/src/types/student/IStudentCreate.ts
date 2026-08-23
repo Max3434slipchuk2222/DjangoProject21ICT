@@ -1,4 +1,4 @@
 export interface IStudentCreate {
     full_name: string
-    courses: number[]
+    course_ids: number[]
 }

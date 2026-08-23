@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useGetCategoriesQuery } from '../services/marycoApi'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import logo from '../assets/icons/logo.png'
+//import logo from '../assets/icons/logo.png'
+import logo3d from '../assets/icons/logo3d.png'
 import { Moon, Sun, Menu, X, User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
 import useDarkMode from "../hooks/UseDarkMode.ts";
 import type { RootState } from "../store";
@@ -41,9 +42,9 @@ export default function Header() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between w-full">
 
                 {/* ЛІВА ЧАСТИНА: Логотип */}
-                <div className="flex-shrink-0 flex items-center w-auto lg:w-1/4">
+                <div className="flex-shrink-0 flex items-center w-auto xl:w-1/4">
                     <NavLink to="/" onClick={handleMobileClick} className="flex items-center gap-2 group">
-                        <img src={logo} alt="logo" className="w-10 h-10 sm:w-12 sm:h-12 transition-transform group-hover:scale-105" />
+                        <img src={logo3d} alt="logo" className="w-12 h-12 sm:w-12 sm:h-12 transition-transform group-hover:scale-105" />
                         <span className="font-black text-gray-900 dark:text-white tracking-wide text-lg sm:text-xl">
                             MARYCO <span className="text-blue-600">CLUB</span>
                         </span>
@@ -51,7 +52,7 @@ export default function Header() {
                 </div>
 
                 {/* ЦЕНТРАЛЬНА ЧАСТИНА: Навігація (тільки десктоп) */}
-                <nav className="hidden md:flex items-center justify-center gap-8 flex-1">
+                <nav className="hidden xl:flex items-center justify-center gap-8 flex-1">
                     <NavLink
                         to="/"
                         className={({ isActive }) =>
@@ -129,7 +130,7 @@ export default function Header() {
                 </nav>
 
                 {/* ПРАВА ЧАСТИНА: Авторизація та Тема */}
-                <div className="flex items-center justify-end gap-3 lg:w-1/4">
+                <div className="flex items-center justify-end gap-3 xl:w-1/4">
 
                     <button
                         onClick={toggleTheme}
@@ -140,7 +141,7 @@ export default function Header() {
                     </button>
 
                     {/* Десктоп: кнопки авторизації */}
-                    <div className="hidden md:flex items-center space-x-3 ml-2">
+                    <div className="hidden lg:flex items-center space-x-3 ml-2">
                         {!isAuthenticated ? (
                             <>
                                 <Link
@@ -190,7 +191,7 @@ export default function Header() {
                     {/* Кнопка мобільного меню */}
                     <button
                         onClick={() => setMobileOpen(!mobileOpen)}
-                        className="md:hidden p-2.5 ml-1 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                        className="xl:hidden p-2.5 ml-1 rounded-xl bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
                         aria-label="Меню"
                     >
                         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
@@ -200,7 +201,7 @@ export default function Header() {
 
             {/* МОБІЛЬНЕ МЕНЮ */}
             {mobileOpen && (
-                <div className="md:hidden absolute top-full left-0 w-full border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl transition-colors z-40">
+                <div className="xl:hidden absolute top-full left-0 w-full border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl transition-colors z-40">
                     <div className="flex flex-col py-4 px-6 max-h-[80vh] overflow-y-auto space-y-2">
                         <NavLink to="/" onClick={handleMobileClick} className="px-4 py-3 rounded-xl font-bold text-lg dark:text-white hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600">
                             Головна
@@ -235,7 +236,7 @@ export default function Header() {
                             Відгуки
                         </NavLink>
 
-                        <div className="mt-4 pt-6 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
+                        <div className=" lg:hidden  pt-6 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-3">
                             {!isAuthenticated ? (
                                 <>
                                     <Link

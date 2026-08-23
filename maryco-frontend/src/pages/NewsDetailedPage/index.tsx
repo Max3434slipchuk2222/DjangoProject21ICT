@@ -52,7 +52,7 @@ export default function NewsDetailPage() {
     const minutes = readingTime(article.content || '');
 
     return (
-        <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
+        <div className="min-h-screen transition-colors">
 
             {/* ── Hero ── */}
             <div className="relative w-full overflow-hidden" style={{ maxHeight: 520 }}>

@@ -114,7 +114,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 dark:bg-slate-950 px-4 transition-colors">
+        <div className="min-h-[80vh] flex items-center justify-center  px-4 transition-colors">
             <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl p-10 shadow-2xl border border-gray-100 dark:border-slate-800 relative">
                 <Link
                     to="/"

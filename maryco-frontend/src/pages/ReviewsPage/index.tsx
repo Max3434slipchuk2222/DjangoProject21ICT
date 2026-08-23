@@ -7,6 +7,7 @@ import { useGetReviewsQuery, useGetCoursesQuery, useSubmitCourseReviewMutation }
 import type { RootState } from '../../store';
 import type { ICourseReview } from '../../types/review/ICourseReview';
 import type { ICourse } from '../../types/course/ICourse';
+import CustomSelect from "../../components/CustomSelect.tsx";
 
 // ─── Зірки інтерактивні ──────────────────────────────────────────────────────
 function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
@@ -77,6 +78,7 @@ function LeaveReviewModal({
     };
 
     if (!isOpen) return null;
+
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
@@ -246,6 +248,13 @@ function ReviewCard({ review, courses, currentUserId }: {
 // ─── Головна сторінка ─────────────────────────────────────────────────────────
 type SortOption = 'newest' | 'oldest' | 'rating_high' | 'rating_low';
 type TabType = 'course' | 'school';
+
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+    { value: 'newest', label: 'Новіші спочатку' },
+    { value: 'oldest', label: 'Старіші спочатку' },
+    { value: 'rating_high', label: 'Висока оцінка' },
+    { value: 'rating_low', label: 'Низька оцінка' },
+];
 
 export default function ReviewsPage() {
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -420,15 +429,11 @@ export default function ReviewsPage() {
                                 </button>
                             ))}
                         </div>
-                        <select
-                            value={sort} onChange={(e) => setSort(e.target.value as SortOption)}
-                            className="text-sm font-bold bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 border-none rounded-xl px-3 py-2 outline-none cursor-pointer flex-shrink-0"
-                        >
-                            <option value="newest">Новіші спочатку</option>
-                            <option value="oldest">Старіші спочатку</option>
-                            <option value="rating_high">Висока оцінка</option>
-                            <option value="rating_low">Низька оцінка</option>
-                        </select>
+                        <CustomSelect
+                            value={sort}
+                            onChange={(v) => setSort(v)}
+                            options={SORT_OPTIONS}
+                        />
                     </div>
 
                     {hasActiveFilters && (

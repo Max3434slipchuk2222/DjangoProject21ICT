@@ -11,27 +11,27 @@ const contacts = [
         icon: MapPin,
         label: 'Адреса',
         value: 'м. Луцьк, вул. Набережна, 10',
-        link: 'https://maps.google.com/?q=Луцьк+вул+Набережна+10',
+        link: 'https://maps.app.goo.gl/PeqXrwoncotTkytA8',
         linkText: 'Переглянути на карті',
     },
     {
         icon: Phone,
         label: 'Телефон',
-        value: '+38 (067) 897-22-22',
+        value: '+38 (098) 703-34-95',
         link: 'tel:+380678972222',
         linkText: 'Зателефонувати',
     },
     {
         icon: Mail,
         label: 'Email',
-        value: 'marycoclub@gmail.com',
+        value: 'maryco.club.private.school@gmail.com',
         link: 'mailto:marycoclub@gmail.com',
         linkText: 'Написати листа',
     },
     {
         icon: Clock,
         label: 'Графік роботи',
-        value: 'Пн–Пт: 9:00–20:00\nСб: 9:00–17:00\nНд: вихідний',
+        value: 'Пн–Сб: 9:00–19:30\nНд: вихідний',
         link: null,
         linkText: null,
     },
@@ -105,7 +105,7 @@ export default function ContactPage() {
     };
 
     return (
-        <main className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors">
+        <main className="min-h-screen transition-colors">
 
             {/* Hero */}
             <section className="bg-gradient-to-br from-blue-600 to-indigo-700 py-20 px-4 text-center">
@@ -164,7 +164,7 @@ export default function ContactPage() {
                                     target="_blank"
                                     rel="noreferrer"
                                     aria-label={label}
-                                    className={`w-12 h-12 rounded-full ${bg} flex items-center justify-center text-white hover:scale-110 hover:opacity-90 transition-all duration-200 shadow-md`}
+                                    className={`w-12 h-12 rounded-full ${bg} dark:border-2 flex items-center justify-center text-white hover:scale-110 hover:opacity-90 transition-all duration-200 shadow-md`}
                                 >
                                     <Icon size={20} />
                                 </a>
@@ -176,7 +176,7 @@ export default function ContactPage() {
                     <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-slate-800 h-64">
                         <iframe
                             title="Maryco Club на карті"
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2547.9!2d25.3252!3d50.7472!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTDCsDQ0JzQ5LjkiTiAyNcKwMTknMzAuNyJF!5e0!3m2!1suk!2sua!4v1234567890"
+                            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d5049.084409982728!2d25.3167596!3d50.7469792!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x472599fbfc433285%3A0x7d4488ca9dbe8705!2sMARYco%20club!5e0!3m2!1suk!2sua!4v1787219325328!5m2!1suk!2sua"
                             width="100%"
                             height="100%"
                             style={{ border: 0 }}
@@ -245,7 +245,7 @@ export default function ContactPage() {
                                             type="tel"
                                             value={formData.phone}
                                             onValueChange={(v) => setFormData({ ...formData, phone: v.formattedValue })}
-                                            className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-gray-900 dark:text-white focus:border-blue-500 outline-none transition-all font-medium"
+                                            className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-gray-400 dark:text-gray-500 focus:border-blue-500 outline-none transition-all font-medium"
                                         />
                                     </div>
                                     <div>
@@ -274,7 +274,7 @@ export default function ContactPage() {
                                         value={formData.message}
                                         onChange={handleChange}
                                         placeholder="Розкажіть про ваше питання..."
-                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-gray-900 dark:text-white focus:border-blue-500 outline-none transition-all font-medium resize-none"
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-gray-400 dark:text-gray-500 focus:border-blue-500 outline-none transition-all font-medium resize-none"
                                     />
                                 </div>
 
