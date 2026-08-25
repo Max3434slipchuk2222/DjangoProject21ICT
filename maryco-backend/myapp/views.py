@@ -19,7 +19,6 @@ from .serializers import (
 from .permissions import IsAdminUser
 
 
-# ─── Міксін: читати всі, писати — тільки адмін ───────────────────────────────
 class AdminOrReadOnlyMixin:
     def get_permissions(self):
         if self.request.method in SAFE_METHODS:
@@ -121,8 +120,8 @@ class TrialLessonViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated and getattr(user, 'role', None) == 'admin':
-            return TrialLessonRequest.objects.all().order_by('-created_at')
+        if user.is_authenticated and (getattr(user, 'role', None) == 'admin' or user.is_staff or user.is_superuser):
+            return TrialLessonRequest.objects.all().select_related('course').order_by('-created_at')
         return TrialLessonRequest.objects.none()
 
     def get_permissions(self):
@@ -130,16 +129,21 @@ class TrialLessonViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         return [IsAdminUser()]
 
-    @action(detail=True, methods=['patch'], url_path='set-status')
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            serializer.save()
+
+    @action(detail=True, methods=['patch'], url_path='set-status', permission_classes=[IsAdminUser])
     def set_status(self, request, pk=None):
-        """PATCH /api/trial-lessons/{id}/set-status/ — змінити статус заявки."""
         trial = self.get_object()
         new_status = request.data.get('status')
         if new_status not in ('new', 'processed'):
             return Response({'detail': 'Невірний статус.'}, status=status.HTTP_400_BAD_REQUEST)
         trial.status = new_status
         trial.save(update_fields=['status'])
-        return Response(TrialLessonSerializer(trial).data)
+        return Response(TrialLessonSerializer(trial, context={'request': request}).data)
 
 
 @extend_schema(tags=['Відгуки на курси'])
@@ -171,13 +175,12 @@ class CourseReviewViewSet(
         if review_type in ('course', 'school'):
             qs = qs.filter(review_type=review_type)
 
-        teacher_user_id = self.request.query_params.get('teacher_user')
-        if teacher_user_id:
+        teacher_id = self.request.query_params.get('teacher')
+        if teacher_id:
             qs = qs.filter(
                 review_type='course',
-                course__teachers__user_id=teacher_user_id
+                course__teachers__id=teacher_id
             ).distinct()
-
         return qs
 
     def perform_create(self, serializer):

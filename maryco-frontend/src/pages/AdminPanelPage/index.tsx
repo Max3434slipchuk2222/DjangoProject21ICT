@@ -235,7 +235,22 @@ function ConfirmModal({ title, body, onConfirm, onCancel }: {
         </div>
     );
 }
-
+function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+    return (
+        <label className="flex items-center justify-between gap-3 cursor-pointer select-none">
+            <span className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-widest">{label}</span>
+            <button
+                type="button"
+                role="switch"
+                aria-checked={checked}
+                onClick={() => onChange(!checked)}
+                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${checked ? 'bg-blue-600' : 'bg-gray-300 dark:bg-slate-700'}`}
+            >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`}/>
+            </button>
+        </label>
+    );
+}
 function SaveButton({ loading, onClick, label = 'Зберегти' }: { loading?: boolean; onClick: () => void; label?: string }) {
     return (
         <button
@@ -958,8 +973,8 @@ function NewsSection() {
     const [updateNews, { isLoading: updating }] = useUpdateNewsMutation();
     const [deleteNews] = useDeleteNewsMutation();
 
-    type FormState = { title: string; content: string; image: File | null };
-    const emptyForm: FormState = { title: '', content: '', image: null };
+    type FormState = { title: string; content: string; image: File | null;  is_published: boolean };
+    const emptyForm: FormState = { title: '', content: '', image: null, is_published: true };
     const [modal, setModal] = useState<null | 'create' | 'edit'>(null);
     const [editItem, setEditItem] = useState<any>(null);
     const [form, setForm] = useState<FormState>(emptyForm);
@@ -968,7 +983,7 @@ function NewsSection() {
 
     const openCreate = () => { setForm(emptyForm); setEditItem(null); setError(''); setModal('create'); };
     const openEdit = (item: any) => {
-        setForm({ title: item.title, content: item.content || '', image: null });
+        setForm({ title: item.title, content: item.content || '', image: null, is_published: item.is_published ?? true });
         setEditItem(item); setError(''); setModal('edit');
     };
 
@@ -976,6 +991,7 @@ function NewsSection() {
         const fd = new FormData();
         fd.append('title', form.title);
         fd.append('content', form.content);
+        fd.append('is_published', String(form.is_published));
         if (form.image) fd.append('image', form.image);
         return fd;
     };
@@ -1012,7 +1028,10 @@ function NewsSection() {
                                 }
                             </div>
                             <div className="p-4">
-                                <p className="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 mb-1.5">{item.title}</p>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <p className="font-bold text-gray-900 dark:text-white text-sm line-clamp-2 flex-1">{item.title}</p>
+                                    {item.is_published === false && <Badge color="slate">Чернетка</Badge>}
+                                </div>
                                 <p className="text-xs text-gray-400 dark:text-gray-400">{new Date(item.created_at).toLocaleDateString('uk-UA')}</p>
                                 <div className="flex gap-2 mt-3">
                                     <button onClick={() => openEdit(item)} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg text-xs font-bold transition-colors">
@@ -1033,6 +1052,7 @@ function NewsSection() {
                         <ImageUpload label="Зображення" value={form.image} onChange={f => setForm(p => ({ ...p, image: f }))} preview={editItem?.image}/>
                         <Input label="Заголовок" value={form.title} onChange={v => setForm(p => ({ ...p, title: v }))} required/>
                         <Textarea label="Текст" value={form.content} onChange={v => setForm(p => ({ ...p, content: v }))} rows={6}/>
+                        <Toggle label="Опубліковано" checked={form.is_published} onChange={v => setForm(p => ({ ...p, is_published: v }))}/>
                         {error && <p className="text-red-500 dark:text-rose-400 text-sm">{error}</p>}
                         <SaveButton loading={creating || updating} onClick={handleSave}/>
                     </div>
@@ -1056,8 +1076,8 @@ function PromotionsSection() {
     const [updatePromotion, { isLoading: updating }] = useUpdatePromotionMutation();
     const [deletePromotion] = useDeletePromotionMutation();
 
-    type FormState = { title: string; description: string; discount: string; valid_until: string; image: File | null };
-    const emptyForm: FormState = { title: '', description: '', discount: '', valid_until: '', image: null };
+    type FormState = { title: string; description: string; discount: string; valid_until: string; image: File | null; is_active: boolean };
+    const emptyForm: FormState = { title: '', description: '', discount: '', valid_until: '', image: null, is_active: true };
     const [modal, setModal] = useState<null | 'create' | 'edit'>(null);
     const [editItem, setEditItem] = useState<any>(null);
     const [form, setForm] = useState<FormState>(emptyForm);
@@ -1066,7 +1086,7 @@ function PromotionsSection() {
 
     const openCreate = () => { setForm(emptyForm); setEditItem(null); setError(''); setModal('create'); };
     const openEdit = (item: any) => {
-        setForm({ title: item.title, description: item.description || '', discount: item.discount || '', valid_until: item.valid_until?.split('T')[0] || '', image: null });
+        setForm({ title: item.title, description: item.description || '', discount: item.discount || '', valid_until: item.valid_until?.split('T')[0] || '', image: null, is_active: item.is_active ?? true });
         setEditItem(item); setError(''); setModal('edit');
     };
 
@@ -1075,6 +1095,7 @@ function PromotionsSection() {
         fd.append('title', form.title);
         fd.append('description', form.description);
         fd.append('discount', form.discount);
+        fd.append('is_active', String(form.is_active));
         if (form.valid_until) fd.append('valid_until', form.valid_until);
         if (form.image) fd.append('image', form.image);
         return fd;
@@ -1108,6 +1129,7 @@ function PromotionsSection() {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-2 mb-1">
                                             <p className="font-bold text-gray-900 dark:text-white text-sm">{promo.title}</p>
+                                            {promo.is_active === false && <Badge color="slate">Неактивна</Badge>}
                                             {promo.discount && (
                                                 <span className="bg-amber-400 dark:bg-amber-500 text-gray-900 dark:text-gray-950 text-xs font-black px-2 py-0.5 rounded-lg flex-shrink-0">
                                                     -{promo.discount}
@@ -1139,6 +1161,7 @@ function PromotionsSection() {
                     <div className="space-y-4">
                         <ImageUpload label="Зображення" value={form.image} onChange={f => setForm(p => ({ ...p, image: f }))} preview={editItem?.image}/>
                         <Input label="Назва" value={form.title} onChange={v => setForm(p => ({ ...p, title: v }))} required/>
+                        <Toggle label="Активна" checked={form.is_active} onChange={v => setForm(p => ({ ...p, is_active: v }))}/>
                         <Textarea label="Опис" value={form.description} onChange={v => setForm(p => ({ ...p, description: v }))} rows={3}/>
                         <div className="grid grid-cols-2 gap-4">
                             <Input label="Знижка" value={form.discount} onChange={v => setForm(p => ({ ...p, discount: v }))} placeholder="20% або 500₴"/>
@@ -1202,7 +1225,9 @@ function ReviewsSection() {
                                             <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
                                                 <div className="flex items-center gap-2 flex-wrap">
                                                     <span className="font-bold text-gray-900 dark:text-white text-sm">{name}</span>
-                                                    <Badge color={r.review_type === 'school' ? 'violet' : 'blue'}>{r.review_type === 'school' ? 'Школа' : 'Курс'}</Badge>
+                                                    <Badge color={r.review_type === 'school' ? 'violet' : 'blue'}>
+                                                        {r.review_type === 'school' ? 'Школа' : (r.course_title || 'Курс')}
+                                                    </Badge>
                                                     {r.is_published === false && <Badge color="slate">Приховано</Badge>}
                                                 </div>
                                                 <div className="flex gap-0.5">{[1,2,3,4,5].map(i => <Star key={i} size={12} className={i <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 dark:text-gray-700'}/>)}</div>
@@ -1286,6 +1311,11 @@ function TrialsSection() {
                                         <div className="flex items-center gap-4 flex-wrap">
                                             <span className="text-xs text-gray-400 dark:text-gray-400 flex items-center gap-1"><Phone size={10}/> {trial.phone}</span>
                                             {trial.child_age && <span className="text-xs text-gray-400 dark:text-gray-400">Вік: {trial.child_age}</span>}
+                                            {trial.course_title && (
+                                                <span className="text-xs text-indigo-500 font-semibold dark:text-indigo-400">
+                                                    Курс: {trial.course_title}
+                                                </span>
+                                            )}
                                             <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1"><Calendar size={10}/> {new Date(trial.created_at).toLocaleDateString('uk-UA')}</span>
                                         </div>
                                     </div>

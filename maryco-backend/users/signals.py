@@ -8,6 +8,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     user = reset_password_token.user
     first_name = user.first_name or user.email
 
+    print(f"\n>>> [SIGNAL TRIGGERED] Початок формування листа для {user.email}")
     reset_url = (
         f"http://localhost:5173/reset-password"
         f"?token={reset_password_token.key}"
@@ -88,11 +89,15 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 </html>
 """
 
-    msg = EmailMultiAlternatives(
-        subject="Відновлення пароля — Maryco Club",
-        body=text_body,
-        from_email="Maryco Club <maryco.club.private.school@gmail.com>",
-        to=[user.email],
-    )
-    msg.attach_alternative(html_body, "text/html")
-    msg.send()
+    try:
+        msg = EmailMultiAlternatives(
+            subject="Відновлення пароля — Maryco Club",
+            body=text_body,
+            from_email="Maryco Club <maryco.club.private.school@gmail.com>",
+            to=[user.email],
+        )
+        msg.attach_alternative(html_body, "text/html")
+        msg.send(fail_silently=False)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()

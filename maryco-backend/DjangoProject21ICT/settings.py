@@ -60,12 +60,31 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 ]
 SITE_ID = 1
+# DRF задає загальну поведінку для всіх API-ендпоінтів
 REST_FRAMEWORK = {
+    # Задає перевірку на авторизацію через JWT
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    # для побудови відкритої документації API
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    #встановлення стандартного механізму пошуку та фільтрації даних через запит
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    # визначаємо глобальні класи для лімітування
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle', # незареєстровані користувачі по їхньому IP
+        'rest_framework.throttling.UserRateThrottle' # зареєстровані користувачі по user_id
+    ],
+    #Прописуємо ліміти за окремими ділянками
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/minute', # 100 запитів за хвилину для неавторизованих
+        'user': '300/minute', # 300 запитів за хвилину для авторизованих
+        # кастомні ліміти на вхід, реєстрацію, зміну пароля та використання форми зворотного зв'язку
+        'login': '10/minute',
+        'register': '5/minute',
+        'password_reset': '5/hour',
+        'contact': '5/day',
+    },
 }
 LOGGING = {
     'version': 1,
@@ -197,18 +216,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 
-EMAIL_HOST_USER = 'maryco.club.private.school@gmail.com'
-EMAIL_HOST_PASSWORD = 'zbrxbqigvgvwxrur'
-DEFAULT_FROM_EMAIL = 'Maryco Club <maryco.club.private.school@gmail.com>'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', f'Maryco Club <{EMAIL_HOST_USER}>')
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -238,4 +259,13 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
-CONTACT_EMAIL = 'maryco.club.private.school@gmail.com'
+CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', EMAIL_HOST_USER)
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

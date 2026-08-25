@@ -1,8 +1,21 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django_resized import ResizedImageField
+from slugify import slugify as slugify_cyrillic
 
 from DjangoProject21ICT import settings
+
+def generate_unique_slug(model, names_text, instance=None):
+    base_slug = slugify_cyrillic(names_text) or 'item'
+    slug = base_slug
+    items = model.objects.all()
+    if instance and instance.pk:
+        items = items.exclude(pk=instance.pk)
+    counter = 2
+    while items.filter(slug=slug).exists():
+        slug = f'{base_slug}-{counter}'
+        counter += 1
+    return slug
 
 
 class Teacher(models.Model):
@@ -37,6 +50,11 @@ class Category(models.Model):
         db_table = "tblCategories"
         ordering = ['name']
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_slug(Category, self.name, self)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -68,6 +86,12 @@ class Course(models.Model):
     class Meta:
         db_table = "tblCourses"
         ordering = ['title']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_slug(Course, self.title, self)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 
@@ -226,6 +250,11 @@ class CourseReview(models.Model):
                 fields=['course', 'user'],
                 condition=models.Q(review_type='course'),
                 name='unique_course_review_per_user'
+            ),
+            models.UniqueConstraint(
+                fields=['user'],
+                condition=models.Q(review_type='school'),
+                name='unique_school_review_per_user'
             )
         ]
 

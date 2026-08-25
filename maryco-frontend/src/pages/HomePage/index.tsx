@@ -5,10 +5,11 @@ import {
     useGetPromotionsQuery,
     useGetTeachersQuery, useSubmitTrialLessonMutation
 } from '../../services/marycoApi';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import { PatternFormat } from 'react-number-format';
 import { Users, BookOpen, Monitor, Star, User, Zap, Globe } from 'lucide-react'
 import EnrollModal from "../../components/EnrollModal.tsx";
+import type {ITeacher} from "../../types/teacher/ITeacher.ts";
 
 const features = [
     { icon: <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />, text: 'Групові заняття' },
@@ -47,6 +48,7 @@ export default function HomePage() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedCourseForModal] = useState<number | null>(null);
+    const [selectedTeacher, setSelectedTeacher] = useState<ITeacher | null>(null);
 
     const [fullName, setFullName] = useState('');
     const [phone, setPhone] = useState('');
@@ -54,6 +56,9 @@ export default function HomePage() {
     const [courseId, setCourseId] = useState<number | null>(null);
 
     const [submitTrial, { isLoading: isSubmitting, isSuccess }] = useSubmitTrialLessonMutation();
+    const getInitials = (name: string) => {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    };
 
     const handleStaticSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -73,10 +78,32 @@ export default function HomePage() {
 
     const popularCourses = courses.slice(0, 3)
     const [teacherIndex, setTeacherIndex] = useState(0)
-    const visibleTeachers = 4
+    const [visibleTeachers, setVisibleTeachers] = useState(4);
+
+    useEffect(() => {
+        const updateVisibleTeachers = () => {
+            if (window.innerWidth < 640) {
+                setVisibleTeachers(1);
+            } else if (window.innerWidth < 768) {
+                setVisibleTeachers(2);
+            } else if (window.innerWidth < 1024) {
+                setVisibleTeachers(3);
+            } else {
+                setVisibleTeachers(4);
+            }
+        };
+
+        updateVisibleTeachers();
+        window.addEventListener('resize', updateVisibleTeachers);
+        return () => window.removeEventListener('resize', updateVisibleTeachers);
+    }, []);
+
+    useEffect(() => {
+        setTeacherIndex(prev => Math.min(prev, Math.max(0, teachers.length - visibleTeachers)));
+    }, [visibleTeachers, teachers.length]);
 
     const prevTeacher = () => setTeacherIndex(i => Math.max(0, i - 1))
-    const nextTeacher = () => setTeacherIndex(i => Math.min(teachers.length - visibleTeachers, i + 1))
+    const nextTeacher = () => setTeacherIndex(i => Math.min(Math.max(0, teachers.length - visibleTeachers), i + 1));
 
     return (
         <main className="font-nunito transition-colors">
@@ -198,10 +225,14 @@ export default function HomePage() {
                                 disabled={teacherIndex === 0}
                                 className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all disabled:opacity-30 flex-shrink-0"
                             >←</button>
-                            <div className="flex gap-6 overflow-hidden flex-1">
+                            <div className="flex gap-6 overflow-hidden flex-1 items-stretch">
                                 {teachers.slice(teacherIndex, teacherIndex + visibleTeachers).map(teacher => (
-                                    <div key={teacher.id} className="flex-1 min-w-0 bg-white dark:bg-gray-900 rounded-2xl p-6 text-center shadow-sm dark:shadow-none hover:shadow-lg transition-all border border-transparent dark:border-gray-800">
-                                        <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4 border-4 border-blue-50 dark:border-gray-800">
+                                    <div
+                                        key={teacher.id}
+                                        onClick={() => setSelectedTeacher(teacher)}
+                                        className="flex-1 min-w-0 bg-white dark:bg-gray-900 rounded-2xl p-6 text-center shadow-sm dark:shadow-none hover:shadow-xl hover:-translate-y-1 transition-all border border-transparent dark:border-gray-800 group flex flex-col items-center justify-between cursor-pointer"
+                                    >
+                                        <div className="w-20 h-20 rounded-full overflow-hidden mb-4 border-4 border-blue-50 dark:border-gray-800 flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                                             {mediaUrl(teacher.photo)
                                                 ? <img src={mediaUrl(teacher.photo)!} alt={teacher.full_name} className="w-full h-full object-cover" />
                                                 : <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-black">
@@ -209,8 +240,15 @@ export default function HomePage() {
                                                 </div>
                                             }
                                         </div>
-                                        <h3 className="font-black text-gray-900 dark:text-white text-sm mb-1">{teacher.full_name}</h3>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">{teacher.subject}</p>
+
+                                        <div className="w-full flex flex-col justify-center flex-1 min-w-0">
+                                            <h3 className="font-black text-gray-900 dark:text-white text-sm mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1 break-words" title={teacher.full_name}>
+                                                {teacher.full_name}
+                                            </h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 min-h-[32px] flex items-center justify-center break-words" title={teacher.subject}>
+                                                {teacher.subject}
+                                            </p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -231,6 +269,85 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+            {selectedTeacher && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                    onClick={() => setSelectedTeacher(null)}
+                >
+                    <div
+                        className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transition-colors flex flex-col"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="relative h-64 flex-shrink-0 bg-gray-100 dark:bg-slate-800">
+                            {selectedTeacher.photo ? (
+                                <img
+                                    src={mediaUrl(selectedTeacher.photo)!}
+                                    alt={selectedTeacher.full_name}
+                                    className="w-full h-full object-cover object-top"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+                                    <span className="text-6xl font-black text-white">
+                                        {getInitials(selectedTeacher.full_name)}
+                                    </span>
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                            <div className="absolute bottom-4 left-6 right-6">
+                                <h2 className="font-black text-white text-2xl leading-tight break-words">{selectedTeacher.full_name}</h2>
+                                <span className="text-blue-300 dark:text-blue-400 font-bold text-sm transition-colors break-words">{selectedTeacher.subject}</span>
+                            </div>
+                            <button
+                                onClick={() => setSelectedTeacher(null)}
+                                className="absolute top-4 right-4 w-9 h-9 bg-black/30 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/50 transition-colors font-black"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div className="p-6 flex flex-col gap-4">
+                            {selectedTeacher.experience && (
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xl">⭐</span>
+                                    <div>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider transition-colors">Досвід</p>
+                                        <p className="font-black text-gray-900 dark:text-white transition-colors">{selectedTeacher.experience}</p>
+                                    </div>
+                                </div>
+                            )}
+                            {selectedTeacher.bio && (
+                                <div className="bg-gray-50 dark:bg-slate-800/60 rounded-2xl p-4 transition-colors">
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-2 transition-colors">Про викладача</p>
+                                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm italic transition-colors whitespace-pre-line break-words">
+                                        "{selectedTeacher.bio}"
+                                    </p>
+                                </div>
+                            )}
+                            {selectedTeacher.courses && selectedTeacher.courses.length > 0 && (
+                                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-4 transition-colors">
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider mb-3 transition-colors">
+                                        Веде курси
+                                    </p>
+                                    <div className="flex flex-col gap-2">
+                                        {selectedTeacher.courses.map(course => (
+                                            <div key={course.id} className="flex items-center justify-between gap-3 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 shadow-sm dark:shadow-none transition-colors">
+                                                <span className="font-bold text-gray-800 dark:text-gray-200 text-sm transition-colors line-clamp-1 break-words">{course.title}</span>
+                                                <span className="font-black text-blue-600 dark:text-blue-400 text-sm transition-colors whitespace-nowrap">{course.price} грн/міс</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            <button
+                                onClick={() => setSelectedTeacher(null)}
+                                className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-black py-3 rounded-xl transition-colors mt-2"
+                            >
+                                Закрити
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* ── Новини ── */}
             {news.length > 0 && (

@@ -9,6 +9,7 @@ export interface ICourseReview {
     id: number;
     review_type: 'course' | 'school';
     course: number | null;
+    course_title: string | null;
     user: ICourseReviewUser;
     rating: number;
     comment: string;

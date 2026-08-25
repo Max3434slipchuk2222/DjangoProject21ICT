@@ -49,18 +49,20 @@ class NewsletterSerializer(serializers.ModelSerializer):
 
 
 class TrialLessonSerializer(serializers.ModelSerializer):
+    course_title = serializers.CharField(source='course.title', read_only=True, default=None)
     class Meta:
         model = TrialLessonRequest
-        fields = ['id', 'full_name', 'phone', 'child_age', 'course', 'status', 'created_at']
+        fields = ['id', 'full_name', 'phone', 'child_age', 'course', 'course_title', 'status', 'created_at']
         read_only_fields = ['status']
 
 
 class CourseReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    course_title = serializers.CharField(source='course.title', read_only=True, default=None)
 
     class Meta:
         model = CourseReview
-        fields = ['id', 'review_type', 'course', 'user', 'rating', 'comment', 'is_published', 'created_at']
+        fields = ['id', 'review_type', 'course', 'course_title', 'user', 'rating', 'comment', 'is_published', 'created_at']
         read_only_fields = ['user', 'created_at', 'is_published']
 
     def validate(self, data):
@@ -82,6 +84,11 @@ class CourseReviewSerializer(serializers.ModelSerializer):
                     {"detail": "Ви вже залишали відгук на цей курс."}
                 )
 
+        if review_type == 'school' and request:
+            if CourseReview.objects.filter(user=request.user, review_type='school').exists():
+                raise serializers.ValidationError(
+                    {"detail": "Ви вже залишали відгук про школу."}
+                )
         return data
 
 
@@ -124,10 +131,17 @@ class CourseSerializer(serializers.ModelSerializer):
 
 class StudentSerializer(serializers.ModelSerializer):
     courses = CourseSerializer(many=True, read_only=True)
+    course_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.all(),
+        source='courses',
+        many=True,
+        write_only=True,
+        required=False,
+    )
 
     class Meta:
         model = Student
-        fields = ['id', 'full_name', 'courses', 'created_at']
+        fields = ['id', 'full_name', 'courses', 'course_ids', 'created_at']
 
 
 class NewsSerializer(serializers.ModelSerializer):

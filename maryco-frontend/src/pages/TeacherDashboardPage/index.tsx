@@ -8,6 +8,7 @@ import {
     Calendar, BookOpen,
     ChevronDown, ChevronUp, GraduationCap, Star, LayoutDashboard
 } from 'lucide-react';
+import APP_ENV from "../../env";
 
 const TeacherDashboardPage = () => {
     const { user } = useSelector((state: RootState) => state.auth);
@@ -43,7 +44,7 @@ const TeacherDashboardPage = () => {
                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shadow-lg border-4 border-gray-50 dark:border-slate-800 flex-shrink-0">
                     {dashboard.photo ? (
                         <img
-                            src={dashboard.photo.startsWith('http') ? dashboard.photo : `http://127.0.0.1:8000${dashboard.photo}`}
+                            src={dashboard.photo.startsWith('http') ? dashboard.photo : `${APP_ENV.API_BASE_URL}${dashboard.photo}`}
                             alt={dashboard.full_name}
                             className="w-full h-full object-cover"
                         />

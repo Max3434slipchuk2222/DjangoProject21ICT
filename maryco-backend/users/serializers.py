@@ -1,5 +1,9 @@
+from django.contrib.auth import get_user_model
+from django_rest_passwordreset.serializers import EmailSerializer
 from rest_framework import serializers
 from .models import CustomUser
+
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,3 +33,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+
+
+class CustomResetPasswordEmailSerializer(EmailSerializer):
+    def validate_email(self, value):
+        user = User.objects.filter(email__iexact=value, is_active=True).first()
+
+        if not user:
+            return value
+
+        return value

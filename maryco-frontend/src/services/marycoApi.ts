@@ -27,6 +27,8 @@ export const marycoApi = createApi({
     reducerPath: 'marycoApi',
     baseQuery: createBaseQuery(''),
     tagTypes: ['Categories', 'Teachers', 'Courses', 'Students', 'News', 'Promotions', 'Reviews', 'Me', 'Trials'],
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
     endpoints: (builder) => ({
 
         login: builder.mutation<ILoginResponse, ILoginRequest>({
