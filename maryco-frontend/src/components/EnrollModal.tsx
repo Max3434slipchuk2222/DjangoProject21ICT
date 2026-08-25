@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { PatternFormat } from 'react-number-format';
 import { useGetCoursesQuery, useSubmitTrialLessonMutation } from '../services/marycoApi';
 import { X } from 'lucide-react';
+import {NavLink} from "react-router-dom";
 
 interface EnrollModalProps {
     isOpen: boolean;
@@ -168,6 +169,16 @@ export default function EnrollModal({ isOpen, onClose, initialCourseId, courseTi
                             >
                                 {isLoading ? 'ВІДПРАВКА...' : 'ВІДПРАВИТИ'}
                             </button>
+                            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4 font-semibold leading-relaxed">
+                                Відправляючи заявку, ви погоджуєтеся з нашою{' '}
+                                <NavLink to="/privacy-policy" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    Політикою конфіденційності
+                                </NavLink>{' '}
+                                та{' '}
+                                <NavLink to="/public-offer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                    Договором публічної оферти
+                                </NavLink>.
+                            </p>
                         </form>
                     </>
                 )}

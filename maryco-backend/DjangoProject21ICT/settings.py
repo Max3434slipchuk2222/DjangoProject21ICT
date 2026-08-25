@@ -62,6 +62,8 @@ INSTALLED_APPS = [
 SITE_ID = 1
 # DRF задає загальну поведінку для всіх API-ендпоінтів
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 9,
     # Задає перевірку на авторизацію через JWT
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -77,8 +79,8 @@ REST_FRAMEWORK = {
     ],
     #Прописуємо ліміти за окремими ділянками
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/minute', # 100 запитів за хвилину для неавторизованих
-        'user': '300/minute', # 300 запитів за хвилину для авторизованих
+        'anon': '100/day', # 100 запитів в день
+        'user': '1000/day', # 300 запитів за хвилину для авторизованих
         # кастомні ліміти на вхід, реєстрацію, зміну пароля та використання форми зворотного зв'язку
         'login': '10/minute',
         'register': '5/minute',
@@ -262,10 +264,12 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 CONTACT_EMAIL = os.getenv('CONTACT_EMAIL', EMAIL_HOST_USER)
 
 if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

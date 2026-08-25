@@ -21,7 +21,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('title', 'category', 'price', 'get_teachers')
     prepopulated_fields = {'slug': ('title',)}
     list_filter = ('category', 'teachers')
-    filter = ('teachers',)
+    filter_horizontal = ('teachers',)
     fieldsets = (
         ('Основна інформація', {
             'fields': ('title', 'slug', 'category', 'teachers', 'price', 'image', 'description')

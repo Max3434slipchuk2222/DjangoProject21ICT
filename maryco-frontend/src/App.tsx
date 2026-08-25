@@ -21,14 +21,20 @@ import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 import PromotionDetailPage from "./pages/PromotionDetailedPage";
 import NewsDetailPage from "./pages/NewsDetailedPage";
 import ScrollToTop from "./components/ScrollToTop.tsx";
+import {Suspense } from 'react';
 
-
+const PageLoader = () => (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950 transition-colors">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
+    </div>
+);
 
 function App() {
     useDarkMode();
   return (
       <>
           <ScrollToTop />
+          <Suspense fallback={<PageLoader />}>
           <Routes>
               <Route path="/" element={<MainLayout/>}>
                   <Route index element={<HomePage/>} />
@@ -58,6 +64,7 @@ function App() {
                   <Route path="/promotions/:id" element={<PromotionDetailPage />} />
               </Route>
           </Routes>
+          </Suspense>
       </>
 
   )

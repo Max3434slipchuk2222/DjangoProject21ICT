@@ -70,11 +70,11 @@ export default function Footer() {
                     <div>
                         <h4 className="text-white font-black mb-6 text-sm uppercase tracking-widest">Контакти</h4>
                         <div className="flex flex-col gap-3 text-sm">
-                            <a href="tel:+380678972222" className="hover:text-blue-400 transition-colors">
-                                +38 (067) 897-22-22
+                            <a href="tel:+380987033495" className="hover:text-blue-400 transition-colors">
+                                +38 (098) 703-34-95
                             </a>
-                            <a href="mailto:marycoclub@gmail.com" className="hover:text-blue-400 transition-colors">
-                                marycoclub@gmail.com
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=maryco.club.private.school@gmail.com" className="hover:text-blue-400 transition-colors">
+                                maryco.club.private.school@gmail.com
                             </a>
                             <p className="leading-relaxed">
                                 м. Луцьк, <br />

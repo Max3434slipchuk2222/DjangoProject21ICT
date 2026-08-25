@@ -29,7 +29,7 @@ class Teacher(models.Model):
     full_name = models.CharField(max_length=100)
     subject = models.CharField(max_length=100)
     bio = models.TextField(blank=True, null=True, verbose_name="Біографія викладача")
-    photo = ResizedImageField(size=[400, 400], quality=90, upload_to='teachers_images/', null=True, crop=None, blank=True)
+    photo = ResizedImageField(size=[400, 400], quality=90, force_format='WEBP', upload_to='teachers_images/', null=True, crop=None, blank=True)
     experience = models.CharField(max_length=50, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

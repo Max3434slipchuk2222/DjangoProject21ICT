@@ -10,6 +10,7 @@ import { PatternFormat } from 'react-number-format';
 import { Users, BookOpen, Monitor, Star, User, Zap, Globe } from 'lucide-react'
 import EnrollModal from "../../components/EnrollModal.tsx";
 import type {ITeacher} from "../../types/teacher/ITeacher.ts";
+import CustomSelect from "../../components/CustomSelect.tsx";
 
 const features = [
     { icon: <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />, text: 'Групові заняття' },
@@ -76,8 +77,12 @@ export default function HomePage() {
         }
     };
 
-    const popularCourses = courses.slice(0, 3)
-    const [teacherIndex, setTeacherIndex] = useState(0)
+    // Безпечний виклик slice з перевіркою чи це масив
+    const coursesList = Array.isArray(courses) ? courses : [];
+    const teachersList = Array.isArray(teachers) ? teachers : [];
+
+    const popularCourses = coursesList.slice(0, 3);
+    const [teacherIndex, setTeacherIndex] = useState(0);
     const [visibleTeachers, setVisibleTeachers] = useState(4);
 
     useEffect(() => {
@@ -99,11 +104,16 @@ export default function HomePage() {
     }, []);
 
     useEffect(() => {
-        setTeacherIndex(prev => Math.min(prev, Math.max(0, teachers.length - visibleTeachers)));
-    }, [visibleTeachers, teachers.length]);
+        setTeacherIndex(prev => Math.min(prev, Math.max(0, teachersList.length - visibleTeachers)));
+    }, [visibleTeachers, teachersList.length]);
 
     const prevTeacher = () => setTeacherIndex(i => Math.max(0, i - 1))
-    const nextTeacher = () => setTeacherIndex(i => Math.min(Math.max(0, teachers.length - visibleTeachers), i + 1));
+    const nextTeacher = () => setTeacherIndex(i => Math.min(Math.max(0, teachersList.length - visibleTeachers), i + 1));
+
+    const courseOptions = [
+        { value: '' as const, label: 'Оберіть курс' },
+        ...coursesList.map(c => ({ value: c.id, label: c.title }))
+    ];
 
     return (
         <main className="font-nunito transition-colors">
@@ -132,7 +142,7 @@ export default function HomePage() {
                     </div>
                     <div className="relative">
                         <img
-                            src="/public/HomePage.jpg"
+                            src="/HomePage.jpg"
                             alt="Діти навчаються"
                             className="w-full h-[480px] object-cover rounded-3xl shadow-2xl dark:shadow-none"
                         />
@@ -226,7 +236,7 @@ export default function HomePage() {
                                 className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all disabled:opacity-30 flex-shrink-0"
                             >←</button>
                             <div className="flex gap-6 overflow-hidden flex-1 items-stretch">
-                                {teachers.slice(teacherIndex, teacherIndex + visibleTeachers).map(teacher => (
+                                {teachersList.slice(teacherIndex, teacherIndex + visibleTeachers).map(teacher => (
                                     <div
                                         key={teacher.id}
                                         onClick={() => setSelectedTeacher(teacher)}
@@ -254,7 +264,7 @@ export default function HomePage() {
                             </div>
                             <button
                                 onClick={nextTeacher}
-                                disabled={teacherIndex >= teachers.length - visibleTeachers}
+                                disabled={teacherIndex >= teachersList.length - visibleTeachers}
                                 className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-md flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all disabled:opacity-30 flex-shrink-0"
                             >→</button>
                         </div>
@@ -361,7 +371,6 @@ export default function HomePage() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {/* Головна новина — велика картка */}
                             {news.slice(0, 1).map(item => (
                                 <NavLink
                                     key={item.id}
@@ -373,7 +382,6 @@ export default function HomePage() {
                                         : <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-8xl">📰</div>
                                     }
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"/>
-                                    {/* Hover overlay */}
                                     <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 transition-colors duration-300"/>
                                     <div className="absolute bottom-0 left-0 right-0 p-8">
                                         <span className="inline-block bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 uppercase tracking-wider">
@@ -390,7 +398,6 @@ export default function HomePage() {
                                 </NavLink>
                             ))}
 
-                            {/* Менші новини */}
                             <div className="flex flex-col gap-4">
                                 {news.slice(1, 3).map(item => (
                                     <NavLink
@@ -439,7 +446,6 @@ export default function HomePage() {
                                     to={`/promotions/${promo.id}`}
                                     className="group relative flex flex-col bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-lg dark:shadow-none hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 border border-transparent dark:border-gray-800"
                                 >
-                                    {/* Discount badge */}
                                     {promo.discount && (
                                         <div className="absolute top-4 right-4 z-10">
                                             <div className="bg-yellow-400 text-gray-900 font-black text-lg px-4 py-2 rounded-2xl shadow-lg rotate-3 group-hover:rotate-0 transition-transform">
@@ -525,13 +531,16 @@ export default function HomePage() {
                                         placeholder="Вік дитини"
                                         className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-2xl outline-none focus:border-blue-500 font-bold transition-all"
                                     />
-                                    <select
-                                        value={courseId || ''} onChange={e => setCourseId(e.target.value ? Number(e.target.value) : null)}
-                                        className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800 border-2 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white rounded-2xl outline-none focus:border-blue-500 font-bold transition-all appearance-none cursor-pointer"
-                                    >
-                                        <option value="">Оберіть курс</option>
-                                        {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
-                                    </select>
+                                    <CustomSelect
+                                        options={courseOptions}
+                                        value={courseId || ''}
+                                        onChange={(val) => setCourseId(val ? Number(val) : null)}
+                                        buttonClassName={`w-full px-6 py-4 border-2 rounded-2xl outline-none font-bold transition-all ${
+                                            courseId
+                                                ? 'bg-gray-50 dark:bg-gray-800 border-gray-50 dark:border-gray-700 text-gray-900 dark:text-white hover:border-gray-200 dark:hover:border-gray-600'
+                                                : 'bg-gray-50 dark:bg-gray-800 border-gray-50 dark:border-gray-700 text-gray-400 dark:text-gray-500'
+                                        }`}
+                                    />
                                 </div>
                                 <button
                                     type="submit" disabled={isSubmitting}
@@ -539,6 +548,16 @@ export default function HomePage() {
                                 >
                                     {isSubmitting ? 'ОБРОБКА...' : 'ВІДПРАВИТИ ЗАЯВКУ'}
                                 </button>
+                                <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-4 font-semibold leading-relaxed">
+                                    Відправляючи заявку, ви погоджуєтеся з нашою{' '}
+                                    <NavLink to="/privacy-policy" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                        Політикою конфіденційності
+                                    </NavLink>{' '}
+                                    та{' '}
+                                    <NavLink to="/public-offer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                                        Договором публічної оферти
+                                    </NavLink>.
+                                </p>
                             </form>
                         )}
                     </div>
@@ -549,7 +568,7 @@ export default function HomePage() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 initialCourseId={selectedCourseForModal}
-                courseTitle={courses.find(c => c.id === selectedCourseForModal)?.title}
+                courseTitle={coursesList.find(c => c.id === selectedCourseForModal)?.title}
             />
         </main>
     )

@@ -18,14 +18,14 @@ const contacts = [
         icon: Phone,
         label: 'Телефон',
         value: '+38 (098) 703-34-95',
-        link: 'tel:+380678972222',
+        link: 'tel:+380987033495',
         linkText: 'Зателефонувати',
     },
     {
         icon: Mail,
         label: 'Email',
         value: 'maryco.club.private.school@gmail.com',
-        link: 'mailto:marycoclub@gmail.com',
+        link: 'https://mail.google.com/mail/?view=cm&fs=1&to=maryco.club.private.school@gmail.com',
         linkText: 'Написати листа',
     },
     {
@@ -245,7 +245,7 @@ export default function ContactPage() {
                                             type="tel"
                                             value={formData.phone}
                                             onValueChange={(v) => setFormData({ ...formData, phone: v.formattedValue })}
-                                            className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-gray-400 dark:text-gray-500 focus:border-blue-500 outline-none transition-all font-medium"
+                                            className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-gray-900 dark:text-white focus:border-blue-500 outline-none transition-all font-medium"
                                         />
                                     </div>
                                     <div>
@@ -274,7 +274,7 @@ export default function ContactPage() {
                                         value={formData.message}
                                         onChange={handleChange}
                                         placeholder="Розкажіть про ваше питання..."
-                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-gray-400 dark:text-gray-500 focus:border-blue-500 outline-none transition-all font-medium resize-none"
+                                        className="w-full px-5 py-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:border-blue-500 outline-none transition-all font-medium resize-none"
                                     />
                                 </div>
 
